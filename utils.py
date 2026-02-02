@@ -1,4 +1,6 @@
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/utils.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/utils.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/utils.py
 """
 Utility functions for Vietnam Gold Dashboard.
 Includes Vietnamese number sanitization and caching decorator.
@@ -170,6 +172,10 @@ def cached(func: Callable[..., T]) -> Callable[..., T]:
     
     return wrapper
 =======
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/utils.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/utils.py
 """
 Utility functions for Vietnam Gold Dashboard.
 Includes Vietnamese number sanitization and caching decorator.
@@ -372,7 +378,7 @@ def cached(func: Callable[..., T]) -> Callable[..., T]:
     - Caches successful results with timestamp
     
     Args:
-        func: Function to decorate (should return pydantic model or dict)
+        func: Function to decorate (should return dataclass model or dict)
         
     Returns:
         Decorated function with caching behavior
@@ -400,4 +406,10 @@ def cached(func: Callable[..., T]) -> Callable[..., T]:
             raise
     
     return wrapper
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/utils.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/utils.py
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-b41d3eed/utils.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/utils.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/utils.py

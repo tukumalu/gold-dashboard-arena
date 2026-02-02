@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vietnam Gold & Market Dashboard - Real-time prices for SJC Gold, USD/VND, Bitcoin, and VN30 Index">
+    <title>Vietnam Gold & Market Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">🇻🇳 Vietnam Market Dashboard</h1>
+            <p class="subtitle">Real-time Gold, Currency, Crypto & Stock Prices</p>
+            <div class="last-update">
+                <span id="lastUpdateTime">Loading...</span>
+                <button id="refreshBtn" class="refresh-btn" title="Refresh data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Gold Card -->
+            <div class="card" id="goldCard">
+                <div class="card-header">
+                    <div class="card-icon gold-icon">🟡</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">SJC Gold</h2>
+                        <p class="card-subtitle">Vàng SJC</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="price-row">
+                        <span class="price-label">Buy / Mua:</span>
+                        <span class="price-value" id="goldBuy">--</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="price-label">Sell / Bán:</span>
+                        <span class="price-value" id="goldSell">--</span>
+                    </div>
+                    <div class="unit" id="goldUnit">VND/tael</div>
+                </div>
+                <div class="card-footer">
+                    <span class="source" id="goldSource">--</span>
+                    <span class="timestamp" id="goldTimestamp">--</span>
+                </div>
+            </div>
+
+            <!-- USD/VND Card -->
+            <div class="card" id="usdCard">
+                <div class="card-header">
+                    <div class="card-icon usd-icon">💵</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">USD/VND</h2>
+                        <p class="card-subtitle">Black Market Rate</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="main-price" id="usdRate">--</div>
+                    <div class="unit">VND per USD</div>
+                </div>
+                <div class="card-footer">
+                    <span class="source" id="usdSource">--</span>
+                    <span class="timestamp" id="usdTimestamp">--</span>
+                </div>
+            </div>
+
+            <!-- Bitcoin Card -->
+            <div class="card" id="btcCard">
+                <div class="card-header">
+                    <div class="card-icon btc-icon">₿</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">Bitcoin</h2>
+                        <p class="card-subtitle">BTC to VND</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="main-price" id="btcRate">--</div>
+                    <div class="unit">VND per BTC</div>
+                </div>
+                <div class="card-footer">
+                    <span class="source" id="btcSource">--</span>
+                    <span class="timestamp" id="btcTimestamp">--</span>
+                </div>
+            </div>
+
+            <!-- VN30 Index Card -->
+            <div class="card" id="vn30Card">
+                <div class="card-header">
+                    <div class="card-icon vn30-icon">📈</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">VN30 Index</h2>
+                        <p class="card-subtitle">Top 30 Stocks</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="main-price" id="vn30Value">--</div>
+                    <div class="change-indicator" id="vn30Change">--</div>
+                </div>
+                <div class="card-footer">
+                    <span class="source" id="vn30Source">--</span>
+                    <span class="timestamp" id="vn30Timestamp">--</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Data updates every 10 minutes • Auto-refresh enabled</p>
+            <p class="disclaimer">Prices are for reference only. Please verify with official sources before making financial decisions.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

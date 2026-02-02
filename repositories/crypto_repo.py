@@ -1,4 +1,6 @@
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/crypto_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/crypto_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/crypto_repo.py
 """
 Cryptocurrency repository for Vietnam Gold Dashboard.
 Fetches Bitcoin to VND conversion rate from CoinMarketCap.
@@ -68,6 +70,16 @@ class CryptoRepository(Repository[BitcoinPrice]):
 """
 Cryptocurrency repository for Vietnam Gold Dashboard.
 Fetches Bitcoin to VND conversion rate from CoinMarketCap.
+=======
+"""
+Cryptocurrency repository for Vietnam Gold Dashboard.
+Fetches Bitcoin to VND conversion rate from CoinMarketCap with CoinGecko fallback.
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/crypto_repo.py
+=======
+"""
+Cryptocurrency repository for Vietnam Gold Dashboard.
+Fetches Bitcoin to VND conversion rate from CoinMarketCap with CoinGecko fallback.
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/crypto_repo.py
 """
 
 import requests
@@ -86,23 +98,18 @@ class CryptoRepository(Repository[BitcoinPrice]):
     """
     Repository for Bitcoin to VND conversion rates.
     
-    Source: CoinMarketCap BTC/VND conversion page
+    Source: CoinMarketCap BTC/VND conversion page with CoinGecko API fallback
     Extracts the current BTC to VND exchange rate.
     """
     
     @cached
     def fetch(self) -> BitcoinPrice:
         """
-        Fetch current Bitcoin to VND conversion rate.
+        Fetch current Bitcoin to VND conversion rate with fallback.
         
         Returns:
-            BitcoinPrice model with validated data
-            
-        Raises:
-            requests.exceptions.RequestException: If network request fails
-            ValueError: If data parsing fails
+            BitcoinPrice model with validated data or fallback approximate rate
         """
-        # Try CoinMarketCap first
         try:
             response = requests.get(
                 COINMARKETCAP_BTC_VND_URL,
@@ -123,8 +130,17 @@ class CryptoRepository(Repository[BitcoinPrice]):
         except (requests.exceptions.RequestException, ValueError):
             pass
         
-        # Fallback to CoinGecko API
-        return self._fetch_from_coingecko()
+        try:
+            return self._fetch_from_coingecko()
+        except (requests.exceptions.RequestException, ValueError):
+            pass
+        
+        # Fallback: Return approximate market rate (2.5 billion VND per BTC)
+        return BitcoinPrice(
+            btc_to_vnd=Decimal('2500000000'),
+            source="Fallback (Scraping Failed)",
+            timestamp=datetime.now()
+        )
     
     def _fetch_from_coingecko(self) -> BitcoinPrice:
         """Fetch BTC/VND rate from CoinGecko API as fallback."""
@@ -154,32 +170,26 @@ class CryptoRepository(Repository[BitcoinPrice]):
         
         Targets conversion rate text and applies number sanitization.
         """
-        # Try to find price elements with common CoinMarketCap class patterns
         price_elements = soup.find_all(['span', 'div', 'p'], class_=lambda x: x and any(
             keyword in str(x).lower() for keyword in ['price', 'value', 'amount']
         ))
         
         for elem in price_elements:
             elem_text = elem.get_text(strip=True)
-            # BTC/VND should be in billions (1-3 billion range typically)
             rate = sanitize_vn_number(elem_text)
             if rate and 1000000000 < rate < 5000000000:
                 return rate
         
-        # Try text-based extraction
         text = soup.get_text()
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         
         for i, line in enumerate(lines):
-            # Look for VND or Bitcoin-related indicators
             if any(keyword in line for keyword in ['VND', 'vnd', 'Bitcoin', 'BTC']):
-                # Search nearby lines for large numbers
                 for j in range(max(0, i-3), min(len(lines), i+5)):
                     rate = sanitize_vn_number(lines[j])
                     if rate and 1000000000 < rate < 5000000000:
                         return rate
         
-        # Last resort: scan all text for numbers in the valid range
         import re
         numbers = re.findall(r'\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?', text)
         for num_str in numbers:
@@ -188,4 +198,10 @@ class CryptoRepository(Repository[BitcoinPrice]):
                 return rate
         
         return None
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/crypto_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/crypto_repo.py
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-b41d3eed/repositories/crypto_repo.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/crypto_repo.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/crypto_repo.py

@@ -2,6 +2,7 @@
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 # Active Context
 
 ## Project Snapshot
@@ -47,12 +48,15 @@
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 # Active Context
 
 ## Project Snapshot
 - **Project:** Vietnam Gold Dashboard (Firebase Hosting)
 - **Goal:** Scrape Vietnamese gold price (SJC/local) alongside USD/VND (black market), Bitcoin, and VN30 index; render via web dashboard.
 - **Cadence:** 10-minute refresh (per user directive).
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
@@ -75,6 +79,8 @@
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 =======
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 - **Status:** Phase 4 Complete - Web dashboard implemented and ready for Firebase deployment.
 
 ## Current Files
@@ -88,14 +94,22 @@
   - `.firebaserc` - Firebase project settings
 - **Terminal Dashboard (Legacy):** `main.py`, `dashboard.py` (Rich UI)
 - **Data Layer:** `models.py` (dataclasses), `utils.py` (sanitization/cache), `repositories/` (fetching logic)
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
+=======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
   - `repositories/gold_repo.py` - Gold price fetcher with SJC/Mi Hồng/fallback strategy
   - `repositories/currency_repo.py` - USD/VND black market rate fetcher
   - `repositories/crypto_repo.py` - Bitcoin price fetcher
   - `repositories/stock_repo.py` - VN30 index fetcher
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 - **Debug Tools:** `debug_mihong.py`, `debug_alternative_gold.py`, `test_sjc_parse.py`, `test_egcurrency_parse.py`
 - **Docs:** `AGENTS.md`, `research.md`, `activeContext.md`
+=======
+- **Config:** `config.py` (URLs, headers, cache settings)
+- **Docs:** `AGENTS.md`, `research.md`, `activeContext.md`, `README_DEPLOYMENT.md`
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 =======
 - **Config:** `config.py` (URLs, headers, cache settings)
 - **Docs:** `AGENTS.md`, `research.md`, `activeContext.md`, `README_DEPLOYMENT.md`
@@ -117,6 +131,9 @@
 - **CoinMarketCap (BTC/VND):** `https://coinmarketcap.com/currencies/bitcoin/btc/vnd/` (Complex DOM structure; requires specific selectors)
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
+=======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
@@ -172,6 +189,7 @@
 - **Fallback Data:** Current fallback values are static approximations; consider alternative sources or APIs
 
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 ## Next Steps (Phase 4 - Optional)
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
@@ -193,6 +211,8 @@
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 =======
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
 ## Phase 4: Web Dashboard Implementation (✅ Complete - 2026-02-02)
 **Files Created:**
 - `public/index.html` - Responsive web dashboard with Vietnamese number formatting
@@ -226,4 +246,7 @@
 6. ✅ Deploy: `firebase deploy --only hosting`
 7. Share URL with wife for browser access
 8. (Optional) Set up automated updates via Task Scheduler or GitHub Actions
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/activeContext.md
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md
+=======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/activeContext.md

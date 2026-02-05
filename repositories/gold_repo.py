@@ -1,6 +1,7 @@
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 """
 Gold price repository for Vietnam Gold Dashboard.
 Fetches SJC gold prices with Mi Hồng fallback.
@@ -130,6 +131,8 @@ class GoldRepository(Repository[GoldPrice]):
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 """
 Gold price repository for Vietnam Gold Dashboard.
 Fetches SJC gold prices with Mi Hồng fallback.
@@ -141,6 +144,10 @@ from datetime import datetime
 from typing import Optional
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
+=======
+from decimal import Decimal
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 =======
 from decimal import Decimal
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
@@ -163,7 +170,12 @@ class GoldRepository(Repository[GoldPrice]):
     2. If SJC fails (timeout, 404, blocked), fallback to Mi Hồng
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
     3. Cache results to avoid rapid retries
+=======
+    3. If both fail, return approximate market data
+    4. Cache results to avoid rapid retries
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 =======
     3. If both fail, return approximate market data
     4. Cache results to avoid rapid retries
@@ -184,9 +196,14 @@ class GoldRepository(Repository[GoldPrice]):
             
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
         Raises:
             requests.exceptions.RequestException: If all sources fail
             ValueError: If data parsing fails
+=======
+        Note:
+            Returns fallback data if all sources fail to ensure UI stability
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 =======
         Note:
             Returns fallback data if all sources fail to ensure UI stability
@@ -330,7 +347,10 @@ class GoldRepository(Repository[GoldPrice]):
         return None
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/gold_repo.py
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-b41d3eed/repositories/gold_repo.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/gold_repo.py
 =======

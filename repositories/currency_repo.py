@@ -1,6 +1,7 @@
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
 """
 Currency exchange repository for Vietnam Gold Dashboard.
 Fetches USD/VND black market rates from EGCurrency.
@@ -81,6 +82,12 @@ Currency exchange repository for Vietnam Gold Dashboard.
 Fetches USD/VND black market rates from EGCurrency with fallback.
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
 """
+=======
+"""
+Currency exchange repository for Vietnam Gold Dashboard.
+Fetches USD/VND black market rates from EGCurrency with fallback.
+"""
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
 
 import requests
 from bs4 import BeautifulSoup
@@ -107,6 +114,7 @@ class CurrencyRepository(Repository[UsdVndRate]):
         """
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
         Fetch current USD/VND black market rate.
         
         Returns:
@@ -115,6 +123,11 @@ class CurrencyRepository(Repository[UsdVndRate]):
         Fetch current USD/VND black market rate with fallback.
         
         Returns:
+=======
+        Fetch current USD/VND black market rate with fallback.
+        
+        Returns:
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
 =======
         Fetch current USD/VND black market rate with fallback.
         
@@ -130,6 +143,9 @@ class CurrencyRepository(Repository[UsdVndRate]):
             )
             response.raise_for_status()
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
+=======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
@@ -189,7 +205,10 @@ class CurrencyRepository(Repository[UsdVndRate]):
         return None
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
 <<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
+<<<<<<< C:/Users/tukum/Downloads/gold-dashboard-arena/repositories/currency_repo.py
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-b41d3eed/repositories/currency_repo.py
+=======
+>>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
 =======
 >>>>>>> C:/Users/tukum/.windsurf/worktrees/gold-dashboard-arena/gold-dashboard-arena-1468470e/repositories/currency_repo.py
 =======

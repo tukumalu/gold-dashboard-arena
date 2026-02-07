@@ -123,47 +123,36 @@ Create a scheduled task to update data every 10 minutes:
    - Action: Start a program
    - Program: `C:\path\to\update_and_deploy.bat`
 
-### Automated Updates with GitHub Actions (Advanced)
+### Automated Updates with GitHub Actions (Recommended)
 
-If you push this to GitHub, you can use GitHub Actions for automatic updates:
+The workflow file already exists at `.github/workflows/update-dashboard.yml`. It runs every 30 minutes and deploys fresh data to Firebase Hosting automatically.
 
-1. **Create `.github/workflows/update-dashboard.yml`**:
-   ```yaml
-   name: Update Dashboard Data
-   
-   on:
-     schedule:
-       - cron: '*/10 * * * *'  # Every 10 minutes
-     workflow_dispatch:  # Manual trigger
-   
-   jobs:
-     update:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v3
-         
-         - name: Set up Python
-           uses: actions/setup-python@v4
-           with:
-             python-version: '3.x'
-         
-         - name: Install dependencies
-           run: pip install -r requirements.txt
-         
-         - name: Generate data
-           run: python generate_data.py
-         
-         - name: Deploy to Firebase
-           uses: FirebaseExtended/action-hosting-deploy@v0
-           with:
-             repoToken: '${{ secrets.GITHUB_TOKEN }}'
-             firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-             projectId: your-project-id
+**One-time setup steps:**
+
+1. **Push this repo to GitHub** (if not already):
+   ```powershell
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin https://github.com/YOUR_USERNAME/gold-dashboard-arena.git
+   git push -u origin main
    ```
 
-2. **Add Firebase service account to GitHub Secrets**:
-   - Generate service account key in Firebase Console
-   - Add as `FIREBASE_SERVICE_ACCOUNT` secret in GitHub
+2. **Generate a Firebase service account key**:
+   - Go to [Firebase Console](https://console.firebase.google.com/) → your project → Project Settings → Service Accounts
+   - Click **"Generate new private key"** → download the JSON file
+   - **Do NOT commit this file** — it contains secrets
+
+3. **Add GitHub Secrets** (Settings → Secrets and variables → Actions → New repository secret):
+   - `FIREBASE_SERVICE_ACCOUNT` — paste the **entire contents** of the downloaded JSON key file
+   - `FIREBASE_PROJECT_ID` — your Firebase project ID (e.g., `gold-dashboard-2026`)
+
+4. **Verify the first run**:
+   - Go to the **Actions** tab on GitHub
+   - Click **"Update Dashboard Data"** → **"Run workflow"** to trigger manually
+   - Confirm the run completes successfully and your live site shows fresh data
+
+After setup, the workflow runs automatically every ~30 minutes with no further action needed.
 
 ## 🧪 Local Testing
 

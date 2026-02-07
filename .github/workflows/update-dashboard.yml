@@ -1,0 +1,48 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    # Run every 30 minutes. GitHub Actions cron has ~5-15 min jitter.
+    # Free tier: ~2,000 min/month. Each run ~2 min = ~48 runs/day = ~1,440 min/month (safe).
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate fresh data.json
+        run: python generate_data.py
+
+      - name: Verify data.json was created
+        run: |
+          if [ ! -f public/data.json ]; then
+            echo "ERROR: public/data.json was not created!"
+            exit 1
+          fi
+          echo "data.json contents:"
+          cat public/data.json | python -m json.tool
+          echo ""
+          echo "File size: $(wc -c < public/data.json) bytes"
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          channelId: live

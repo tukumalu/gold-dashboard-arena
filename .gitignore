@@ -14,6 +14,8 @@ ENV/
 .firebase/
 firebase-debug.log
 firestore-debug.log
+*-firebase-adminsdk-*.json
+service-account*.json
 
 # IDE
 .vscode/

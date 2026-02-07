@@ -11,7 +11,7 @@ from decimal import Decimal
 
 from .base import Repository
 from models import UsdVndRate
-from config import EGCURRENCY_URL, CHOGIA_AJAX_URL, HEADERS, REQUEST_TIMEOUT
+from config import EGCURRENCY_URL, CHOGIA_AJAX_URL, HEADERS, REQUEST_TIMEOUT, OPEN_ER_API_URL
 from utils import cached, sanitize_vn_number
 
 
@@ -19,8 +19,7 @@ class CurrencyRepository(Repository[UsdVndRate]):
     """
     Repository for USD/VND black market exchange rates.
     
-    Source: EGCurrency black market page
-    Extracts the sell price for USD to VND conversion.
+    Source chain: chogia.vn → EGCurrency → Open ExchangeRate API → Hardcoded fallback
     """
     
     @cached
@@ -56,6 +55,13 @@ class CurrencyRepository(Repository[UsdVndRate]):
         except (requests.exceptions.RequestException, ValueError) as e:
             print(f"EGCurrency fetch failed: {e}")
         
+        # 3. Try Open ExchangeRate API (international, always works)
+        try:
+            return self._fetch_from_open_er_api()
+        except (requests.exceptions.RequestException, ValueError, KeyError) as e:
+            print(f"Open ER API fetch failed: {e}")
+        
+        # 4. Hardcoded Fallback
         return UsdVndRate(
             sell_rate=Decimal('26500'),
             source="Fallback (Scraping Failed)",
@@ -106,6 +112,40 @@ class CurrencyRepository(Repository[UsdVndRate]):
             timestamp=datetime.now()
         )
     
+    def _fetch_from_open_er_api(self) -> UsdVndRate:
+        """
+        Fetch USD/VND rate from Open ExchangeRate API (free, no key required).
+        
+        Returns the official bank rate (not black market), but is reliable
+        from any IP worldwide. Better than showing a stale hardcoded fallback.
+        """
+        response = requests.get(
+            OPEN_ER_API_URL,
+            headers={"User-Agent": HEADERS["User-Agent"]},
+            timeout=REQUEST_TIMEOUT
+        )
+        response.raise_for_status()
+        
+        data = response.json()
+        
+        if data.get('result') != 'success':
+            raise ValueError("Open ER API returned unsuccessful response")
+        
+        vnd_rate = data.get('rates', {}).get('VND')
+        if not vnd_rate:
+            raise ValueError("No VND rate in Open ER API response")
+        
+        sell_rate = Decimal(str(vnd_rate))
+        
+        if sell_rate < 20000 or sell_rate > 35000:
+            raise ValueError(f"USD rate {sell_rate} outside expected range")
+        
+        return UsdVndRate(
+            sell_rate=sell_rate,
+            source="ExchangeRate API",
+            timestamp=datetime.now()
+        )
+
     def _extract_sell_rate(self, soup: BeautifulSoup) -> Optional[Decimal]:
         """
         Extract sell rate from EGCurrency HTML.

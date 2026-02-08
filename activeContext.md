@@ -27,6 +27,7 @@
 - **Gold (DOJI API):** Working. SJC retail prices via DOJI XML API (primary).
 - **USD/VND (chogia.vn):** Working. Black market rates via AJAX JSON (primary).
 - **Bitcoin (CoinMarketCap):** Fallback Mode. Complex DOM structure. Fallback to conversion rates.
+- **GitHub Actions:** Working. Cron schedule (`*/30 * * * *`) successfully generating data and deploying to Firebase.
 
 ## Key Technical Achievements
 - **Robust Scraping:** Switched to stable APIs (DOJI, chogia.vn) instead of fragile HTML parsing.
@@ -36,6 +37,7 @@
 - **Firebase Deployment:** Live at https://gold-dashboard-2026.web.app
 
 ## Recent Changes (Feb 2026)
+- **GitHub Actions workflow fixed:** Resolved merge conflict markers in `stock_repo.py` from stale worktree merge. Workflow now runs successfully on cron schedule.
 - **Gold scraper fix:** Added DOJI API as primary source. SJC/Mi Hồng were broken (JS-rendered pages). DOJI returns XML with real-time SJC prices.
 - **USD black market fix:** Added chogia.vn AJAX as primary source. EGCurrency was returning official bank rates (~25k) instead of true black market rates (~26k).
 - **Config:** Added `DOJI_API_URL` and `CHOGIA_AJAX_URL` to `config.py`.

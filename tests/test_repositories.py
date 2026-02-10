@@ -5,7 +5,7 @@ Test script to verify all repositories fetch data correctly.
 import warnings
 warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
-from repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository
+from gold_dashboard.repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository
 from datetime import datetime
 
 

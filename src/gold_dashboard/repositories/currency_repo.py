@@ -10,9 +10,9 @@ from typing import Optional
 from decimal import Decimal
 
 from .base import Repository
-from models import UsdVndRate
-from config import EGCURRENCY_URL, CHOGIA_AJAX_URL, HEADERS, REQUEST_TIMEOUT, OPEN_ER_API_URL
-from utils import cached, sanitize_vn_number
+from ..models import UsdVndRate
+from ..config import EGCURRENCY_URL, CHOGIA_AJAX_URL, HEADERS, REQUEST_TIMEOUT, OPEN_ER_API_URL
+from ..utils import cached, sanitize_vn_number
 
 
 class CurrencyRepository(Repository[UsdVndRate]):

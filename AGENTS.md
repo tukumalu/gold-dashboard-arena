@@ -45,7 +45,40 @@ This file defines the static context and roadmap for the Vietnam Gold Dashboard 
 1. **Sanity Check Script**
 2. **Visual Check:** ensure rich table columns align correctly and colors indicate up/down trends (if historical data is available).
 
-## 🚨 Coding Standards & Anti-Patterns
+## � Project Structure
+```
+gold-dashboard-arena/
+├── AGENTS.md                          # Project laws & standards
+├── README_DEPLOYMENT.md               # Firebase deployment guide
+├── pyproject.toml                     # Python packaging (src layout)
+├── requirements.txt                   # Pinned dependencies
+├── firebase.json / .firebaserc        # Firebase config
+├── .github/workflows/                 # GitHub Actions (auto-deploy)
+├── public/                            # Firebase static assets (HTML/CSS/JS)
+│   ├── index.html, styles.css, app.js
+│   └── data.json (auto-generated)
+├── src/gold_dashboard/                # Main Python package
+│   ├── __init__.py
+│   ├── config.py                      # URLs, headers, selectors
+│   ├── models.py                      # Dataclasses (Decimal-based)
+│   ├── utils.py                       # VN number sanitization, caching
+│   ├── dashboard.py                   # Rich terminal UI
+│   ├── main.py                        # Terminal dashboard entry point
+│   ├── generate_data.py               # Static JSON export for Firebase
+│   └── repositories/                  # Repository pattern (data fetching)
+│       ├── base.py, gold_repo.py, currency_repo.py
+│       ├── crypto_repo.py, stock_repo.py
+│       └── __init__.py
+├── tests/                             # Test scripts
+├── scripts/                           # Debug & analysis scripts
+└── docs/                              # research.md, activeContext.md
+```
+
+- **Install:** `pip install -e .` (editable mode, resolves `gold_dashboard` package)
+- **Run terminal dashboard:** `python -m gold_dashboard.main`
+- **Generate data.json:** `python -m gold_dashboard.generate_data`
+
+## �🚨 Coding Standards & Anti-Patterns
 - **NO Generic Requests:** do not use `requests.get(url)` without headers; it will be blocked by Vietnamese firewalls.
 - **NO Float Errors:** use `Decimal` from `decimal` for currency calculations (avoid floating point errors like `0.1 + 0.2`).
 - **NO "N/A" Crashes:** if a source is down, UI should show "Unavailable" or cached timestamp, not crash.

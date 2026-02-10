@@ -64,7 +64,7 @@ firebase use --add
 ### Step 5: Generate Fresh Data
 
 ```powershell
-python generate_data.py
+python -m gold_dashboard.generate_data
 ```
 
 This creates `public/data.json` with the latest market data.
@@ -89,7 +89,7 @@ After deployment, Firebase will provide a URL like:
 
 1. Run the data generator:
    ```powershell
-   python generate_data.py
+   python -m gold_dashboard.generate_data
    ```
 
 2. Deploy the updated data:
@@ -104,8 +104,8 @@ Create a scheduled task to update data every 10 minutes:
 1. **Create update script** (`update_and_deploy.bat`):
    ```batch
    @echo off
-   cd /d C:\Users\tukum\.windsurf\worktrees\gold-dashboard-arena\gold-dashboard-arena-1468470e
-   python generate_data.py
+   cd /d C:\Users\tukum\Downloads\gold-dashboard-arena
+   python -m gold_dashboard.generate_data
    firebase deploy --only hosting --token YOUR_CI_TOKEN
    ```
 
@@ -160,7 +160,7 @@ Before deploying, test the dashboard locally:
 
 1. **Generate data**:
    ```powershell
-   python generate_data.py
+   python -m gold_dashboard.generate_data
    ```
 
 2. **Start local server**:
@@ -244,7 +244,7 @@ All data is cached for 10 minutes to avoid rate limiting.
 ## 🔒 Security Notes
 
 - No sensitive data is exposed in the frontend
-- All scraping happens server-side (in `generate_data.py`)
+- All scraping happens server-side (in `src/gold_dashboard/generate_data.py`)
 - Firebase Hosting provides HTTPS by default
 - Data is read-only (no user input/database)
 

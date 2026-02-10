@@ -10,8 +10,8 @@ from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
-from repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository
-from models import DashboardData
+from .repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository
+from .models import DashboardData
 
 warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
@@ -115,8 +115,9 @@ def main():
     # Serialize to dictionary
     json_data = serialize_data(data)
     
-    # Ensure public directory exists
-    public_dir = Path(__file__).parent / 'public'
+    # Ensure public directory exists (relative to project root, not package)
+    project_root = Path(__file__).resolve().parent.parent.parent
+    public_dir = project_root / 'public'
     public_dir.mkdir(exist_ok=True)
     
     # Write to data.json

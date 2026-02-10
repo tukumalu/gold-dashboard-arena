@@ -10,9 +10,9 @@ from typing import Optional
 from decimal import Decimal
 
 from .base import Repository
-from models import GoldPrice
-from config import SJC_URL, MIHONG_URL, DOJI_API_URL, HEADERS, REQUEST_TIMEOUT
-from utils import cached, sanitize_vn_number
+from ..models import GoldPrice
+from ..config import SJC_URL, MIHONG_URL, DOJI_API_URL, HEADERS, REQUEST_TIMEOUT
+from ..utils import cached, sanitize_vn_number
 
 
 class GoldRepository(Repository[GoldPrice]):

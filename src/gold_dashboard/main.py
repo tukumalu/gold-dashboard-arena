@@ -9,9 +9,9 @@ from datetime import datetime
 from rich.console import Console
 from rich.live import Live
 
-from repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository
-from models import DashboardData
-from dashboard import create_dashboard_table
+from .repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository
+from .models import DashboardData
+from .dashboard import create_dashboard_table
 
 warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 

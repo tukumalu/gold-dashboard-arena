@@ -12,15 +12,17 @@
   - `public/styles.css` - Modern, mobile-friendly styling.
   - `public/app.js` - Frontend data fetching and rendering.
   - `public/data.json` - Generated market data (auto-generated).
-  - `generate_data.py` - Data generation script for static export.
   - `firebase.json` - Firebase hosting configuration.
   - `.firebaserc` - Firebase project settings.
-- **Terminal Dashboard (Legacy):** `main.py`, `dashboard.py` (Rich UI).
+- **Terminal Dashboard (Legacy):** `src/gold_dashboard/main.py`, `src/gold_dashboard/dashboard.py` (Rich UI).
 - **Data Layer:** 
-  - `models.py` - Dataclasses for market data.
-  - `utils.py` - Sanitization and caching logic.
-  - `repositories/` - Data fetching logic for Gold, Currency, Crypto, and Stocks.
-- **Docs:** `AGENTS.md`, `research.md`, `activeContext.md`, `README_DEPLOYMENT.md`.
+  - `src/gold_dashboard/models.py` - Dataclasses for market data.
+  - `src/gold_dashboard/utils.py` - Sanitization and caching logic.
+  - `src/gold_dashboard/repositories/` - Data fetching logic for Gold, Currency, Crypto, and Stocks.
+- **Data Generation:** `src/gold_dashboard/generate_data.py` - Static export for Firebase.
+- **Tests:** `tests/` - Repository and parse tests.
+- **Scripts:** `scripts/` - Debug and HTML analysis scripts.
+- **Docs:** `AGENTS.md`, `docs/research.md`, `docs/activeContext.md`, `README.md`.
 
 ## Implementation Status
 - **VN30 Index (Vietstock):** Working. Extracts value and change percentage.
@@ -37,6 +39,7 @@
 - **Firebase Deployment:** Live at https://gold-dashboard-2026.web.app
 
 ## Recent Changes (Feb 2026)
+- **Project reorganized:** Moved to standard Python `src` layout with `pyproject.toml`.
 - **GitHub Actions workflow fixed:** Resolved merge conflict markers in `stock_repo.py` from stale worktree merge. Workflow now runs successfully on cron schedule.
 - **Gold scraper fix:** Added DOJI API as primary source. SJC/Mi Hồng were broken (JS-rendered pages). DOJI returns XML with real-time SJC prices.
 - **USD black market fix:** Added chogia.vn AJAX as primary source. EGCurrency was returning official bank rates (~25k) instead of true black market rates (~26k).

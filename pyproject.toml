@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gold-dashboard"
+version = "1.0.0"
+description = "Vietnam Gold & Market Dashboard - Real-time SJC Gold, USD/VND, Bitcoin, and VN30 Index"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.2",
+    "lxml>=4.9.3",
+    "pydantic>=2.10.6",
+    "rich>=13.7.0",
+    "diskcache>=5.6.3",
+]
+
+[project.scripts]
+gold-dashboard = "gold_dashboard.main:main"
+gold-generate = "gold_dashboard.generate_data:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

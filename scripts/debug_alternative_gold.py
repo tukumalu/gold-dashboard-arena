@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 import warnings
 warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
-from config import HEADERS, REQUEST_TIMEOUT
-from utils import sanitize_vn_number
+from gold_dashboard.config import HEADERS, REQUEST_TIMEOUT
+from gold_dashboard.utils import sanitize_vn_number
 
 # Alternative sources
 SOURCES = {

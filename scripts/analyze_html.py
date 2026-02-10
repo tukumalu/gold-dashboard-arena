@@ -3,7 +3,7 @@ Analyze saved HTML files to identify parsing strategies.
 """
 from bs4 import BeautifulSoup
 import re
-from utils import sanitize_vn_number
+from gold_dashboard.utils import sanitize_vn_number
 
 def analyze_sjc():
     print("\n=== Analyzing SJC HTML ===")

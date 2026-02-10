@@ -13,9 +13,9 @@ from typing import Optional, Tuple
 from decimal import Decimal
 
 from .base import Repository
-from models import Vn30Index
-from config import VIETSTOCK_URL, CAFEF_URL, HEADERS, REQUEST_TIMEOUT, VPS_VN30_API_URL
-from utils import cached, sanitize_vn_number
+from ..models import Vn30Index
+from ..config import VIETSTOCK_URL, CAFEF_URL, HEADERS, REQUEST_TIMEOUT, VPS_VN30_API_URL
+from ..utils import cached, sanitize_vn_number
 
 
 class StockRepository(Repository[Vn30Index]):

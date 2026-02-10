@@ -13,7 +13,7 @@ from datetime import datetime
 from dataclasses import asdict, is_dataclass
 import requests.exceptions
 
-from config import CACHE_DIR, CACHE_TTL_SECONDS
+from .config import CACHE_DIR, CACHE_TTL_SECONDS
 
 T = TypeVar('T')
 
@@ -85,8 +85,7 @@ def _deserialize_from_cache(obj: Any) -> Any:
     """Reconstruct dataclass objects from cached JSON data."""
     if isinstance(obj, dict):
         if '__dataclass__' in obj:
-            # Import models to get dataclass types
-            from models import GoldPrice, UsdVndRate, BitcoinPrice, Vn30Index
+            from .models import GoldPrice, UsdVndRate, BitcoinPrice, Vn30Index
             
             class_map = {
                 'GoldPrice': GoldPrice,
@@ -98,11 +97,9 @@ def _deserialize_from_cache(obj: Any) -> Any:
             class_name = obj['__dataclass__']
             data_dict = obj['data']
             
-            # Deserialize nested objects
             for key, value in data_dict.items():
                 data_dict[key] = _deserialize_from_cache(value)
             
-            # Reconstruct the dataclass
             if class_name in class_map:
                 return class_map[class_name](**data_dict)
         elif '__decimal__' in obj:
@@ -110,7 +107,6 @@ def _deserialize_from_cache(obj: Any) -> Any:
         elif '__datetime__' in obj:
             return datetime.fromisoformat(obj['__datetime__'])
         else:
-            # Recursively deserialize nested dicts
             return {k: _deserialize_from_cache(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [_deserialize_from_cache(item) for item in obj]
@@ -159,7 +155,6 @@ def _write_cache(cache_key: str, data: Any) -> None:
     cache_path = _get_cache_path(cache_key)
     
     try:
-        # Convert dataclass to dict for JSON serialization
         serialized_data = _serialize_for_cache(data)
         
         cache_data = {
@@ -207,7 +202,6 @@ def cached(func: Callable[..., T]) -> Callable[..., T]:
     """
     @wraps(func)
     def wrapper(*args, **kwargs) -> T:
-        # Include class name if method is bound to an instance
         if args and hasattr(args[0], '__class__'):
             cache_key = f"{args[0].__class__.__name__}_{func.__name__}"
         else:

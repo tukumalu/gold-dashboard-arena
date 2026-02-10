@@ -23,10 +23,12 @@ jobs:
           cache: 'pip'
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
 
       - name: Generate fresh data.json
-        run: python generate_data.py
+        run: python -m gold_dashboard.generate_data
 
       - name: Verify data.json was created
         run: |

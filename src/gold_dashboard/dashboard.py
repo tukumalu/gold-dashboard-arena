@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Optional
 
-from models import DashboardData, GoldPrice, UsdVndRate, BitcoinPrice, Vn30Index
+from .models import DashboardData, GoldPrice, UsdVndRate, BitcoinPrice, Vn30Index
 
 
 def format_vn_number(value: Decimal, decimal_places: int = 0) -> str:

@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 import warnings
 warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
-from config import MIHONG_URL, HEADERS, REQUEST_TIMEOUT
-from utils import sanitize_vn_number
+from gold_dashboard.config import MIHONG_URL, HEADERS, REQUEST_TIMEOUT
+from gold_dashboard.utils import sanitize_vn_number
 
 def inspect_mihong():
     print("Fetching Mi Hồng HTML...")

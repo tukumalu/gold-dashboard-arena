@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from utils import sanitize_vn_number
+from gold_dashboard.utils import sanitize_vn_number
 import re
 
 with open('.cache/egcurrency_20260201_220147.html', 'r', encoding='utf-8') as f:

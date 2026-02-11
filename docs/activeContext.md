@@ -69,6 +69,16 @@
   - Added `_seed_historical_bitcoin()` and `_backfill_bitcoin_history()` methods.
   - CoinGecko data now backfills local store on every run for long-term accumulation.
 
+- **Dark Fintech UI Redesign (Feb 11 2026):**
+  - Full dark theme (`#0d1117` bg, glassmorphic cards, green/red accents).
+  - Layout: 2 compact metric cards (Gold + USD/VND) top row, 2 chart cards (Bitcoin + VN30) below.
+  - Chart.js line charts with green gradient fill, period selectors (1W/1M/1Y/3Y).
+  - Backend: `HistoryRepository.fetch_timeseries()` exposes raw `[date, value]` arrays in `data.json`.
+  - `generate_data.py` now outputs `timeseries` key (295 gold, 69 USD/VND, 405 BTC, 754 VN30 points).
+  - Cache-busting bumped to `?v=3` on CSS/JS references.
+  - 25/25 tests still passing.
+
 ## Next Steps
 1. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
 2. (Optional) Refine Bitcoin scraper for more reliable VND conversion.
+3. (Optional) Deploy updated dark theme to Firebase.

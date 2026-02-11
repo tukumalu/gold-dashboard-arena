@@ -1,170 +1,155 @@
-// Vietnam Gold & Market Dashboard - Frontend Logic
+// Vietnam Gold & Market Dashboard — Dark Fintech Frontend
 
 const DATA_URL = 'data.json';
-const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
-const FRESHNESS_THRESHOLDS = {
-    fresh: 5 * 60 * 1000,  // < 5 minutes
-    stale: 10 * 60 * 1000  // < 10 minutes
-};
+const REFRESH_INTERVAL = 10 * 60 * 1000;
+const FRESHNESS_THRESHOLDS = { fresh: 5 * 60 * 1000, stale: 10 * 60 * 1000 };
 
-// Vietnamese number formatting
+// Period -> max days for filtering timeseries
+const PERIOD_DAYS = { '1W': 7, '1M': 30, '1Y': 365, '3Y': 1095 };
+
+// Store raw timeseries + chart instances globally
+let timeseriesData = {};
+let chartInstances = {};
+
+// ---- Formatting helpers ----
+
 function formatVietnameseNumber(value, decimalPlaces = 0) {
     if (!value && value !== 0) return '--';
-    
     const num = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(num)) return '--';
-    
-    // Split into integer and decimal parts
     const parts = num.toFixed(decimalPlaces).split('.');
     const integerPart = parts[0];
     const decimalPart = parts[1];
-    
-    // Format integer part with dots as thousand separators
     const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    
-    // Combine with comma as decimal separator if needed
     if (decimalPlaces > 0 && decimalPart) {
         return `${formattedInteger},${decimalPart}`;
     }
-    
     return formattedInteger;
 }
 
-// Calculate data freshness
 function getFreshnessClass(timestamp) {
-    const now = new Date();
-    const dataTime = new Date(timestamp);
-    const age = now - dataTime;
-    
+    const age = Date.now() - new Date(timestamp).getTime();
     if (age < FRESHNESS_THRESHOLDS.fresh) return 'fresh';
     if (age < FRESHNESS_THRESHOLDS.stale) return 'stale';
     return 'old';
 }
 
-// Format timestamp for display
 function formatTimestamp(timestamp) {
     const date = new Date(timestamp);
     const now = new Date();
     const diff = now - date;
-    
-    // If less than 1 minute, show "Just now"
     if (diff < 60000) return 'Just now';
-    
-    // If less than 1 hour, show minutes ago
-    if (diff < 3600000) {
-        const minutes = Math.floor(diff / 60000);
-        return `${minutes} min ago`;
-    }
-    
-    // If today, show time
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
     if (date.toDateString() === now.toDateString()) {
-        return date.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-        });
+        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     }
-    
-    // Otherwise show date and time
-    return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// Update Gold card
-function updateGoldCard(data) {
+function formatChangeBadge(el, changePercent) {
+    if (changePercent === null || changePercent === undefined) {
+        el.textContent = '--';
+        el.className = 'change-badge';
+        return;
+    }
+    const pct = parseFloat(changePercent);
+    const sign = pct >= 0 ? '+' : '';
+    el.textContent = `${sign}${formatVietnameseNumber(pct, 2)}%`;
+    el.className = 'change-badge ' + (pct >= 0 ? 'positive' : 'negative');
+}
+
+// ---- Card update functions ----
+
+function updateGoldCard(data, history) {
     if (!data) return;
-    
     const card = document.getElementById('goldCard');
-    const buyElement = document.getElementById('goldBuy');
-    const sellElement = document.getElementById('goldSell');
-    const unitElement = document.getElementById('goldUnit');
-    const sourceElement = document.getElementById('goldSource');
-    const timestampElement = document.getElementById('goldTimestamp');
-    
-    buyElement.textContent = formatVietnameseNumber(data.buy_price, 0);
-    sellElement.textContent = formatVietnameseNumber(data.sell_price, 0);
-    unitElement.textContent = data.unit || 'VND/tael';
-    sourceElement.textContent = data.source || '--';
-    timestampElement.textContent = formatTimestamp(data.timestamp);
-    
-    // Update freshness indicator
-    card.className = 'card ' + getFreshnessClass(data.timestamp);
+    document.getElementById('goldSell').textContent = formatVietnameseNumber(data.sell_price, 0);
+    document.getElementById('goldBuy').textContent = formatVietnameseNumber(data.buy_price, 0);
+    document.getElementById('goldSellSmall').textContent = formatVietnameseNumber(data.sell_price, 0);
+    document.getElementById('goldUnit').textContent = data.unit || 'VND/tael';
+    document.getElementById('goldSource').textContent = data.source || '--';
+    document.getElementById('goldTimestamp').textContent = formatTimestamp(data.timestamp);
+
+    // 1W change for the top badge
+    const badge = document.getElementById('goldBadge');
+    const weekChange = history && history.find(c => c.period === '1W');
+    formatChangeBadge(badge, weekChange ? weekChange.change_percent : null);
+
+    card.className = 'metric-card ' + getFreshnessClass(data.timestamp);
 }
 
-// Update USD/VND card
-function updateUsdCard(data) {
+function updateUsdCard(data, history) {
     if (!data) return;
-    
     const card = document.getElementById('usdCard');
-    const rateElement = document.getElementById('usdRate');
-    const sourceElement = document.getElementById('usdSource');
-    const timestampElement = document.getElementById('usdTimestamp');
-    
-    rateElement.textContent = formatVietnameseNumber(data.sell_rate, 0);
-    sourceElement.textContent = data.source || '--';
-    timestampElement.textContent = formatTimestamp(data.timestamp);
-    
-    card.className = 'card ' + getFreshnessClass(data.timestamp);
+    document.getElementById('usdRate').textContent = formatVietnameseNumber(data.sell_rate, 0);
+    document.getElementById('usdSource').textContent = data.source || '--';
+    document.getElementById('usdTimestamp').textContent = formatTimestamp(data.timestamp);
+
+    const badge = document.getElementById('usdBadge');
+    const weekChange = history && history.find(c => c.period === '1W');
+    formatChangeBadge(badge, weekChange ? weekChange.change_percent : null);
+
+    card.className = 'metric-card ' + getFreshnessClass(data.timestamp);
 }
 
-// Update Bitcoin card
-function updateBtcCard(data) {
+function updateBtcCard(data, history) {
     if (!data) return;
-    
     const card = document.getElementById('btcCard');
-    const rateElement = document.getElementById('btcRate');
-    const sourceElement = document.getElementById('btcSource');
-    const timestampElement = document.getElementById('btcTimestamp');
-    
-    rateElement.textContent = formatVietnameseNumber(data.btc_to_vnd, 0);
-    sourceElement.textContent = data.source || '--';
-    timestampElement.textContent = formatTimestamp(data.timestamp);
-    
-    card.className = 'card ' + getFreshnessClass(data.timestamp);
-}
+    document.getElementById('btcRate').textContent = formatVietnameseNumber(data.btc_to_vnd, 0);
+    document.getElementById('btcSource').textContent = data.source || '--';
+    document.getElementById('btcTimestamp').textContent = formatTimestamp(data.timestamp);
 
-// Update VN30 card
-function updateVn30Card(data) {
-    if (!data) return;
-    
-    const card = document.getElementById('vn30Card');
-    const valueElement = document.getElementById('vn30Value');
-    const changeElement = document.getElementById('vn30Change');
-    const sourceElement = document.getElementById('vn30Source');
-    const timestampElement = document.getElementById('vn30Timestamp');
-    
-    valueElement.textContent = formatVietnameseNumber(data.index_value, 2);
-    
-    if (data.change_percent !== null && data.change_percent !== undefined) {
-        const changePercent = parseFloat(data.change_percent);
-        const sign = changePercent >= 0 ? '+' : '';
-        changeElement.textContent = `${sign}${formatVietnameseNumber(changePercent, 2)}%`;
-        changeElement.className = 'change-indicator ' + (changePercent >= 0 ? 'positive' : 'negative');
+    const changeEl = document.getElementById('btcChange');
+    const activeBtn = document.querySelector('[data-chart="btc"] .period-btn.active');
+    const activePeriod = activeBtn ? activeBtn.dataset.period : '1M';
+    const periodChange = history && history.find(c => c.period === activePeriod);
+    if (periodChange && periodChange.change_percent !== null) {
+        const pct = parseFloat(periodChange.change_percent);
+        const sign = pct >= 0 ? '+' : '';
+        changeEl.textContent = `↗ ${sign}${formatVietnameseNumber(pct, 2)}%`;
+        changeEl.className = 'chart-change ' + (pct >= 0 ? 'positive' : 'negative');
     } else {
-        changeElement.textContent = '--';
-        changeElement.className = 'change-indicator';
+        changeEl.textContent = '--';
+        changeEl.className = 'chart-change';
     }
-    
-    sourceElement.textContent = data.source || '--';
-    timestampElement.textContent = formatTimestamp(data.timestamp);
-    
-    card.className = 'card ' + getFreshnessClass(data.timestamp);
+
+    card.className = 'chart-card ' + getFreshnessClass(data.timestamp);
 }
 
-// Update historical change badges for a card
+function updateVn30Card(data, history) {
+    if (!data) return;
+    const card = document.getElementById('vn30Card');
+    document.getElementById('vn30Value').textContent = formatVietnameseNumber(data.index_value, 2);
+    document.getElementById('vn30Source').textContent = data.source || '--';
+    document.getElementById('vn30Timestamp').textContent = formatTimestamp(data.timestamp);
+
+    const changeEl = document.getElementById('vn30Change');
+    const activeBtn = document.querySelector('[data-chart="vn30"] .period-btn.active');
+    const activePeriod = activeBtn ? activeBtn.dataset.period : '1M';
+    const periodChange = history && history.find(c => c.period === activePeriod);
+    if (periodChange && periodChange.change_percent !== null) {
+        const pct = parseFloat(periodChange.change_percent);
+        const sign = pct >= 0 ? '+' : '';
+        changeEl.textContent = `↗ ${sign}${formatVietnameseNumber(pct, 2)}%`;
+        changeEl.className = 'chart-change ' + (pct >= 0 ? 'positive' : 'negative');
+    } else {
+        changeEl.textContent = '--';
+        changeEl.className = 'chart-change';
+    }
+
+    card.className = 'chart-card ' + getFreshnessClass(data.timestamp);
+}
+
+// ---- History badges (metric cards) ----
+
 function updateHistoryBadges(containerId, changes) {
     const container = document.getElementById(containerId);
     if (!container || !changes) return;
-
     let hasAnyData = false;
 
     changes.forEach(change => {
         const badge = container.querySelector(`[data-period="${change.period}"]`);
         if (!badge) return;
-
         const valueEl = badge.querySelector('.period-value');
         if (!valueEl) return;
 
@@ -173,7 +158,6 @@ function updateHistoryBadges(containerId, changes) {
             badge.className = 'history-badge badge-na';
             return;
         }
-
         hasAnyData = true;
         const pct = parseFloat(change.change_percent);
         const sign = pct >= 0 ? '+' : '';
@@ -181,7 +165,6 @@ function updateHistoryBadges(containerId, changes) {
         badge.className = 'history-badge ' + (pct >= 0 ? 'badge-positive' : 'badge-negative');
     });
 
-    // Show hint when no historical data is available yet
     let hint = container.querySelector('.history-hint');
     if (!hasAnyData) {
         if (!hint) {
@@ -195,70 +178,202 @@ function updateHistoryBadges(containerId, changes) {
     }
 }
 
-// Update last update time in header
+// ---- Chart rendering ----
+
+function filterTimeseries(series, periodKey) {
+    if (!series || !series.length) return { labels: [], values: [] };
+    const days = PERIOD_DAYS[periodKey] || 30;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+    const filtered = series.filter(p => p[0] >= cutoffStr);
+    // If filter yields too few points, show all data
+    const data = filtered.length >= 2 ? filtered : series;
+    return {
+        labels: data.map(p => p[0]),
+        values: data.map(p => p[1])
+    };
+}
+
+function createOrUpdateChart(canvasId, assetKey, periodKey) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const series = timeseriesData[assetKey];
+    const { labels, values } = filterTimeseries(series, periodKey);
+
+    // Build gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 140);
+    gradient.addColorStop(0, 'rgba(0, 200, 83, 0.35)');
+    gradient.addColorStop(1, 'rgba(0, 200, 83, 0.0)');
+
+    const config = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                borderColor: '#00c853',
+                borderWidth: 2,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+                pointHitRadius: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#21262d',
+                    titleColor: '#e6edf3',
+                    bodyColor: '#8b949e',
+                    borderColor: 'rgba(255,255,255,0.06)',
+                    borderWidth: 1,
+                    padding: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(ctx) {
+                            return formatVietnameseNumber(ctx.parsed.y, 0);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    ticks: {
+                        color: '#484f58',
+                        font: { size: 10, family: 'Inter' },
+                        maxTicksLimit: 6,
+                        maxRotation: 0,
+                        callback: function(val, idx) {
+                            const label = this.getLabelForValue(val);
+                            // Show short date: "Jan 5" or "Mar"
+                            const d = new Date(label);
+                            if (isNaN(d)) return label;
+                            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        }
+                    }
+                },
+                y: {
+                    display: true,
+                    position: 'right',
+                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    ticks: {
+                        color: '#484f58',
+                        font: { size: 10, family: 'Inter' },
+                        maxTicksLimit: 4,
+                        callback: function(val) {
+                            if (val >= 1e9) return (val / 1e9).toFixed(1) + 'B';
+                            if (val >= 1e6) return (val / 1e6).toFixed(1) + 'M';
+                            if (val >= 1e3) return (val / 1e3).toFixed(1) + 'K';
+                            return val;
+                        }
+                    }
+                }
+            },
+            interaction: { mode: 'nearest', axis: 'x', intersect: false },
+            animation: { duration: 400 }
+        }
+    };
+
+    // Destroy existing chart if any, then create new
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+    chartInstances[canvasId] = new Chart(ctx, config);
+}
+
+// ---- Period selector wiring ----
+
+function initPeriodSelectors() {
+    document.querySelectorAll('.period-selector').forEach(selector => {
+        const chartKey = selector.dataset.chart; // 'btc' or 'vn30'
+        selector.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state
+                selector.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const period = btn.dataset.period;
+                const canvasId = chartKey === 'btc' ? 'btcChart' : 'vn30Chart';
+                const assetKey = chartKey === 'btc' ? 'bitcoin' : 'vn30';
+                createOrUpdateChart(canvasId, assetKey, period);
+            });
+        });
+    });
+}
+
+// ---- Header update ----
+
 function updateLastUpdateTime() {
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-    document.getElementById('lastUpdateTime').textContent = `Last updated: ${timeString}`;
+    document.getElementById('lastUpdateTime').textContent = `Updated ${timeString}`;
 }
 
-// Fetch and display data
+// ---- Main fetch ----
+
+let lastData = null;
+
 async function fetchData() {
     try {
-        // Add cache-busting parameter to ensure fresh data
         const response = await fetch(`${DATA_URL}?t=${Date.now()}`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        
-        // Update all cards
-        if (data.gold) updateGoldCard(data.gold);
-        if (data.usd_vnd) updateUsdCard(data.usd_vnd);
-        if (data.bitcoin) updateBtcCard(data.bitcoin);
-        if (data.vn30) updateVn30Card(data.vn30);
-        
-        // Update historical change badges
-        if (data.history) {
-            if (data.history.gold) updateHistoryBadges('goldHistory', data.history.gold);
-            if (data.history.usd_vnd) updateHistoryBadges('usdHistory', data.history.usd_vnd);
-            if (data.history.bitcoin) updateHistoryBadges('btcHistory', data.history.bitcoin);
-            if (data.history.vn30) updateHistoryBadges('vn30History', data.history.vn30);
+        lastData = data;
+
+        const goldHistory = data.history && data.history.gold;
+        const usdHistory = data.history && data.history.usd_vnd;
+        const btcHistory = data.history && data.history.bitcoin;
+        const vn30History = data.history && data.history.vn30;
+
+        // Update metric cards
+        if (data.gold) updateGoldCard(data.gold, goldHistory);
+        if (data.usd_vnd) updateUsdCard(data.usd_vnd, usdHistory);
+
+        // Update chart cards
+        if (data.bitcoin) updateBtcCard(data.bitcoin, btcHistory);
+        if (data.vn30) updateVn30Card(data.vn30, vn30History);
+
+        // Update history badges on metric cards
+        if (goldHistory) updateHistoryBadges('goldHistory', goldHistory);
+        if (usdHistory) updateHistoryBadges('usdHistory', usdHistory);
+
+        // Store timeseries and render charts
+        if (data.timeseries) {
+            timeseriesData = data.timeseries;
+            const btcPeriod = document.querySelector('[data-chart="btc"] .period-btn.active');
+            const vn30Period = document.querySelector('[data-chart="vn30"] .period-btn.active');
+            createOrUpdateChart('btcChart', 'bitcoin', btcPeriod ? btcPeriod.dataset.period : '1M');
+            createOrUpdateChart('vn30Chart', 'vn30', vn30Period ? vn30Period.dataset.period : '1M');
         }
-        
+
         updateLastUpdateTime();
-        
+
     } catch (error) {
         console.error('Error fetching data:', error);
         document.getElementById('lastUpdateTime').textContent = 'Error loading data';
     }
 }
 
-// Manual refresh button
-document.getElementById('refreshBtn').addEventListener('click', () => {
-    fetchData();
-});
+// ---- Init ----
 
-// Initial load
+initPeriodSelectors();
+
+document.getElementById('refreshBtn').addEventListener('click', () => fetchData());
+
 fetchData();
 
-// Auto-refresh every 10 minutes
 setInterval(fetchData, REFRESH_INTERVAL);
-
-// Update timestamps every minute
-setInterval(() => {
-    // Re-fetch to update relative timestamps
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        const timestampElement = card.querySelector('.timestamp');
-        if (timestampElement && timestampElement.dataset.timestamp) {
-            timestampElement.textContent = formatTimestamp(timestampElement.dataset.timestamp);
-        }
-    });
-}, 60000);

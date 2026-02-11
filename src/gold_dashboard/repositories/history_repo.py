@@ -196,6 +196,129 @@ class HistoryRepository:
         return result
 
     # ------------------------------------------------------------------
+    # Time-series export (for frontend charts)
+    # ------------------------------------------------------------------
+
+    def fetch_timeseries(self) -> Dict[str, List[List]]:
+        """
+        Collect raw time-series data for all assets for frontend chart rendering.
+
+        Returns a dict like::
+
+            {
+                "gold": [["2024-03-01", 79000000.0], ...],
+                "usd_vnd": [["2024-03-01", 25200.0], ...],
+                "bitcoin": [["2024-03-01", 1550000000.0], ...],
+                "vn30": [["2024-03-01", 1250.5], ...],
+            }
+
+        Each list is sorted by date ascending.  Data comes from the same
+        external APIs and seed lists already used by ``fetch_changes``.
+        """
+        result: Dict[str, List[List]] = {}
+
+        try:
+            result["gold"] = self._gold_timeseries()
+            print(f"  ✓ Gold timeseries: {len(result['gold'])} points")
+        except Exception as e:
+            print(f"  ⚠ Gold timeseries failed: {e}")
+
+        try:
+            result["usd_vnd"] = self._usd_vnd_timeseries()
+            print(f"  ✓ USD/VND timeseries: {len(result['usd_vnd'])} points")
+        except Exception as e:
+            print(f"  ⚠ USD/VND timeseries failed: {e}")
+
+        try:
+            result["bitcoin"] = self._bitcoin_timeseries()
+            print(f"  ✓ Bitcoin timeseries: {len(result['bitcoin'])} points")
+        except Exception as e:
+            print(f"  ⚠ Bitcoin timeseries failed: {e}")
+
+        try:
+            result["vn30"] = self._vn30_timeseries()
+            print(f"  ✓ VN30 timeseries: {len(result['vn30'])} points")
+        except Exception as e:
+            print(f"  ⚠ VN30 timeseries failed: {e}")
+
+        return result
+
+    def _gold_timeseries(self) -> List[List]:
+        """Merge webgia + chogia + seed data into a sorted date/value list."""
+        merged: Dict[str, float] = {}
+
+        # Seeds first (lowest priority — overwritten by API data)
+        for date_str, val in _SJC_HISTORICAL_SEEDS:
+            merged[date_str] = float(val)
+
+        # webgia.com (~282 points, ~1 year)
+        try:
+            rates = self._fetch_webgia_gold_history()
+            for d, v in rates.items():
+                merged[d] = float(v)
+        except Exception:
+            pass
+
+        # chogia.vn (~30 days)
+        try:
+            rates = self._fetch_chogia_gold_history()
+            for d, v in rates.items():
+                merged[d] = float(v)
+        except Exception:
+            pass
+
+        return sorted([d, v] for d, v in merged.items())
+
+    def _usd_vnd_timeseries(self) -> List[List]:
+        """Merge chogia + seed data into a sorted date/value list."""
+        merged: Dict[str, float] = {}
+
+        for date_str, val in _USD_VND_HISTORICAL_SEEDS:
+            merged[date_str] = float(val)
+
+        try:
+            rates = self._fetch_chogia_history()
+            for d, v in rates.items():
+                merged[d] = float(v)
+        except Exception:
+            pass
+
+        return sorted([d, v] for d, v in merged.items())
+
+    def _bitcoin_timeseries(self) -> List[List]:
+        """Merge CoinGecko + seed data into a sorted date/value list."""
+        merged: Dict[str, float] = {}
+
+        for date_str, val in _BTC_VND_HISTORICAL_SEEDS:
+            merged[date_str] = float(val)
+
+        try:
+            fetch_days = min(max(HISTORY_PERIODS.values()), _COINGECKO_MAX_DAYS)
+            day_prices = self._fetch_coingecko_history(fetch_days)
+            for day_key, val in day_prices.items():
+                dt = datetime.fromtimestamp(day_key * 86400)
+                merged[dt.strftime("%Y-%m-%d")] = float(val)
+        except Exception:
+            pass
+
+        return sorted([d, v] for d, v in merged.items())
+
+    def _vn30_timeseries(self) -> List[List]:
+        """Fetch VPS TradingView data into a sorted date/value list."""
+        merged: Dict[str, float] = {}
+
+        try:
+            max_days = max(HISTORY_PERIODS.values())
+            day_prices = self._fetch_vps_history(max_days)
+            for day_key, val in day_prices.items():
+                dt = datetime.fromtimestamp(day_key * 86400)
+                merged[dt.strftime("%Y-%m-%d")] = float(val)
+        except Exception:
+            pass
+
+        return sorted([d, v] for d, v in merged.items())
+
+    # ------------------------------------------------------------------
     # Gold — webgia.com (~1 year) + chogia.vn (~30 days) + local store
     # ------------------------------------------------------------------
 

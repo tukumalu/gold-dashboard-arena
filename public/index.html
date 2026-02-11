@@ -5,46 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Vietnam Gold & Market Dashboard - Real-time prices for SJC Gold, USD/VND, Bitcoin, and VN30 Index">
     <title>Vietnam Gold & Market Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <header class="header">
-            <h1 class="title">🇻🇳 Vietnam Market Dashboard</h1>
-            <p class="subtitle">Real-time Gold, Currency, Crypto & Stock Prices</p>
+            <div class="header-left">
+                <h1 class="title">🇻🇳 Vietnam Market</h1>
+            </div>
             <div class="last-update">
                 <span id="lastUpdateTime">Loading...</span>
                 <button id="refreshBtn" class="refresh-btn" title="Refresh data">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                     </svg>
                 </button>
             </div>
         </header>
 
-        <div class="dashboard-grid">
+        <!-- Top Row: Compact Metric Cards -->
+        <div class="top-row">
             <!-- Gold Card -->
-            <div class="card" id="goldCard">
-                <div class="card-header">
-                    <div class="card-icon gold-icon">🟡</div>
-                    <div class="card-title-group">
-                        <h2 class="card-title">SJC Gold</h2>
-                        <p class="card-subtitle">Vàng SJC</p>
-                    </div>
+            <div class="metric-card" id="goldCard">
+                <div class="metric-header">
+                    <span class="metric-icon">🟡</span>
+                    <span class="metric-label">SJC Gold</span>
+                    <span class="change-badge" id="goldBadge">--</span>
                 </div>
-                <div class="card-body">
+                <div class="metric-value" id="goldSell">--</div>
+                <div class="metric-sub" id="goldUnit">VND/tael</div>
+                <div class="price-rows">
                     <div class="price-row">
-                        <span class="price-label">Buy / Mua:</span>
+                        <span class="price-label">Buy</span>
                         <span class="price-value" id="goldBuy">--</span>
                     </div>
                     <div class="price-row">
-                        <span class="price-label">Sell / Bán:</span>
-                        <span class="price-value" id="goldSell">--</span>
+                        <span class="price-label">Sell</span>
+                        <span class="price-value" id="goldSellSmall">--</span>
                     </div>
-                    <div class="unit" id="goldUnit">VND/tael</div>
                 </div>
                 <div class="card-history" id="goldHistory">
                     <div class="history-badge" data-period="1W"><span class="period-label">1W</span><span class="period-value">--</span></div>
@@ -59,18 +61,14 @@
             </div>
 
             <!-- USD/VND Card -->
-            <div class="card" id="usdCard">
-                <div class="card-header">
-                    <div class="card-icon usd-icon">💵</div>
-                    <div class="card-title-group">
-                        <h2 class="card-title">USD/VND</h2>
-                        <p class="card-subtitle">Black Market Rate</p>
-                    </div>
+            <div class="metric-card" id="usdCard">
+                <div class="metric-header">
+                    <span class="metric-icon">💵</span>
+                    <span class="metric-label">USD/VND</span>
+                    <span class="change-badge" id="usdBadge">--</span>
                 </div>
-                <div class="card-body">
-                    <div class="main-price" id="usdRate">--</div>
-                    <div class="unit">VND per USD</div>
-                </div>
+                <div class="metric-value" id="usdRate">--</div>
+                <div class="metric-sub">Black Market Rate</div>
                 <div class="card-history" id="usdHistory">
                     <div class="history-badge" data-period="1W"><span class="period-label">1W</span><span class="period-value">--</span></div>
                     <div class="history-badge" data-period="1M"><span class="period-label">1M</span><span class="period-value">--</span></div>
@@ -82,25 +80,27 @@
                     <span class="timestamp" id="usdTimestamp">--</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Bitcoin Card -->
-            <div class="card" id="btcCard">
-                <div class="card-header">
-                    <div class="card-icon btc-icon">₿</div>
-                    <div class="card-title-group">
-                        <h2 class="card-title">Bitcoin</h2>
-                        <p class="card-subtitle">BTC to VND</p>
+        <!-- Chart Cards -->
+        <div class="chart-cards">
+            <!-- Bitcoin Chart Card -->
+            <div class="chart-card" id="btcCard">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <div class="chart-title">Bitcoin Price Action</div>
+                        <div class="chart-price" id="btcRate">--</div>
+                        <div class="chart-change" id="btcChange">--</div>
+                    </div>
+                    <div class="period-selector" data-chart="btc">
+                        <button class="period-btn" data-period="1W">1W</button>
+                        <button class="period-btn active" data-period="1M">1M</button>
+                        <button class="period-btn" data-period="1Y">1Y</button>
+                        <button class="period-btn" data-period="3Y">3Y</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="main-price" id="btcRate">--</div>
-                    <div class="unit">VND per BTC</div>
-                </div>
-                <div class="card-history" id="btcHistory">
-                    <div class="history-badge" data-period="1W"><span class="period-label">1W</span><span class="period-value">--</span></div>
-                    <div class="history-badge" data-period="1M"><span class="period-label">1M</span><span class="period-value">--</span></div>
-                    <div class="history-badge" data-period="1Y"><span class="period-label">1Y</span><span class="period-value">--</span></div>
-                    <div class="history-badge" data-period="3Y"><span class="period-label">3Y</span><span class="period-value">--</span></div>
+                <div class="chart-wrapper">
+                    <canvas id="btcChart"></canvas>
                 </div>
                 <div class="card-footer">
                     <span class="source" id="btcSource">--</span>
@@ -108,24 +108,23 @@
                 </div>
             </div>
 
-            <!-- VN30 Index Card -->
-            <div class="card" id="vn30Card">
-                <div class="card-header">
-                    <div class="card-icon vn30-icon">📈</div>
-                    <div class="card-title-group">
-                        <h2 class="card-title">VN30 Index</h2>
-                        <p class="card-subtitle">Top 30 Stocks</p>
+            <!-- VN30 Chart Card -->
+            <div class="chart-card" id="vn30Card">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <div class="chart-title">VN30 Index</div>
+                        <div class="chart-price" id="vn30Value">--</div>
+                        <div class="chart-change" id="vn30Change">--</div>
+                    </div>
+                    <div class="period-selector" data-chart="vn30">
+                        <button class="period-btn" data-period="1W">1W</button>
+                        <button class="period-btn active" data-period="1M">1M</button>
+                        <button class="period-btn" data-period="1Y">1Y</button>
+                        <button class="period-btn" data-period="3Y">3Y</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="main-price" id="vn30Value">--</div>
-                    <div class="change-indicator" id="vn30Change">--</div>
-                </div>
-                <div class="card-history" id="vn30History">
-                    <div class="history-badge" data-period="1W"><span class="period-label">1W</span><span class="period-value">--</span></div>
-                    <div class="history-badge" data-period="1M"><span class="period-label">1M</span><span class="period-value">--</span></div>
-                    <div class="history-badge" data-period="1Y"><span class="period-label">1Y</span><span class="period-value">--</span></div>
-                    <div class="history-badge" data-period="3Y"><span class="period-label">3Y</span><span class="period-value">--</span></div>
+                <div class="chart-wrapper">
+                    <canvas id="vn30Chart"></canvas>
                 </div>
                 <div class="card-footer">
                     <span class="source" id="vn30Source">--</span>
@@ -140,6 +139,7 @@
         </footer>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>

@@ -152,12 +152,24 @@ def main():
     except Exception as e:
         print(f"⚠ Historical changes fetch failed: {e}")
     
+    # Fetch raw time-series data for frontend charts
+    timeseries = {}
+    try:
+        timeseries = HistoryRepository().fetch_timeseries()
+        print("✓ Time-series data fetched")
+    except Exception as e:
+        print(f"⚠ Time-series fetch failed: {e}")
+    
     # Serialize to dictionary
     json_data = serialize_data(data)
     
     # Add historical changes to output
     if history:
         json_data['history'] = _serialize_history(history)
+    
+    # Add time-series data for charts
+    if timeseries:
+        json_data['timeseries'] = timeseries
     
     # Ensure public directory exists (relative to project root, not package)
     project_root = Path(__file__).resolve().parent.parent.parent

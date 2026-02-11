@@ -1,20 +1,22 @@
-/* Vietnam Gold & Market Dashboard Styles */
+/* Vietnam Gold & Market Dashboard — Dark Fintech Theme */
 
 :root {
-    --primary-color: #2563eb;
-    --secondary-color: #7c3aed;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --gold-color: #fbbf24;
-    --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --bg-body: #0d1117;
+    --bg-card: #161b22;
+    --bg-card-hover: #1c2129;
+    --bg-input: #21262d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #484f58;
+    --border-color: rgba(255, 255, 255, 0.06);
+    --accent-green: #00c853;
+    --accent-green-dim: rgba(0, 200, 83, 0.15);
+    --accent-red: #ff5252;
+    --accent-red-dim: rgba(255, 82, 82, 0.15);
+    --accent-gold: #fbbf24;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
 }
 
 * {
@@ -25,53 +27,53 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-body);
     min-height: 100vh;
-    padding: 1rem;
+    padding: 1.25rem;
     color: var(--text-primary);
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
 /* Header */
 .header {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.subtitle {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .last-update {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
-    opacity: 0.9;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
 }
 
 .refresh-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 0.5rem;
-    padding: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem;
     cursor: pointer;
-    color: white;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -79,132 +81,222 @@ body {
 }
 
 .refresh-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
     transform: rotate(180deg);
 }
 
-.refresh-btn:active {
-    transform: rotate(180deg) scale(0.95);
-}
-
-/* Dashboard Grid */
-.dashboard-grid {
+/* ---- Top Row: Compact Metric Cards ---- */
+.top-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-/* Card Styles */
-.card {
-    background: var(--bg-primary);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-lg);
-    transition: transform 0.2s, box-shadow 0.2s;
+.metric-card {
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    transition: background 0.2s;
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+.metric-card:hover {
+    background: var(--bg-card-hover);
 }
 
-.card-header {
+.metric-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--bg-secondary);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-.card-icon {
-    font-size: 2.5rem;
+.metric-icon {
+    font-size: 1.25rem;
     line-height: 1;
 }
 
-.card-title-group {
-    flex: 1;
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-}
-
-.card-subtitle {
-    font-size: 0.875rem;
+.metric-label {
+    font-size: 0.8rem;
+    font-weight: 500;
     color: var(--text-secondary);
 }
 
-.card-body {
-    margin-bottom: 1rem;
+.change-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    margin-left: auto;
+}
+
+.change-badge.positive {
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+}
+
+.change-badge.negative {
+    background: var(--accent-red-dim);
+    color: var(--accent-red);
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.metric-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* Gold card: buy/sell rows */
+.price-rows {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.25rem;
 }
 
 .price-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--bg-secondary);
-}
-
-.price-row:last-child {
-    border-bottom: none;
+    flex-direction: column;
 }
 
 .price-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    font-weight: 500;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.15rem;
 }
 
 .price-value {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
 }
 
-.main-price {
-    font-size: 2rem;
+/* ---- Chart Cards ---- */
+.chart-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-card:hover {
+    background: var(--bg-card-hover);
+}
+
+.chart-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.chart-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.chart-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.chart-price {
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
     font-variant-numeric: tabular-nums;
+    line-height: 1.2;
 }
 
-.unit {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
-}
-
-.change-indicator {
-    font-size: 1.25rem;
+.chart-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.75rem;
     font-weight: 600;
+    margin-top: 0.15rem;
+}
+
+.chart-change.positive { color: var(--accent-green); }
+.chart-change.negative { color: var(--accent-red); }
+
+/* Period selector pills */
+.period-selector {
+    display: flex;
+    gap: 0.25rem;
+    align-self: flex-start;
+    margin-top: 0.25rem;
+}
+
+.period-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.period-btn:hover {
+    color: var(--text-secondary);
+    background: var(--bg-input);
+}
+
+.period-btn.active {
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+/* Chart canvas wrapper */
+.chart-wrapper {
+    flex: 1;
+    min-height: 140px;
     margin-top: 0.5rem;
+    position: relative;
 }
 
-.change-indicator.positive {
-    color: var(--success-color);
+.chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
-.change-indicator.negative {
-    color: var(--danger-color);
-}
-
-/* Historical Change Badges */
+/* ---- History Badges (inside metric cards) ---- */
 .card-history {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem 0;
-    border-top: 1px dashed var(--border-color);
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .history-badge {
@@ -212,203 +304,137 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.375rem 0.25rem;
-    border-radius: 0.5rem;
-    background: var(--bg-secondary);
-    transition: background 0.2s;
+    gap: 0.15rem;
+    padding: 0.3rem 0.2rem;
+    border-radius: 6px;
+    background: var(--bg-input);
 }
 
 .history-badge .period-label {
-    font-size: 0.625rem;
+    font-size: 0.575rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--text-secondary);
-    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
 }
 
 .history-badge .period-value {
-    font-size: 0.75rem;
+    font-size: 0.675rem;
     font-weight: 600;
     color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
 }
 
 .history-badge.badge-positive {
-    background: rgba(16, 185, 129, 0.1);
+    background: var(--accent-green-dim);
 }
 
 .history-badge.badge-positive .period-value {
-    color: var(--success-color);
+    color: var(--accent-green);
 }
 
 .history-badge.badge-negative {
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--accent-red-dim);
 }
 
 .history-badge.badge-negative .period-value {
-    color: var(--danger-color);
+    color: var(--accent-red);
 }
 
 .history-badge.badge-na {
     background: transparent;
-    border: 1px dashed var(--border-color);
-    opacity: 0.5;
+    border: 1px dashed var(--text-muted);
+    opacity: 0.4;
 }
 
 .history-badge.badge-na .period-value {
-    font-size: 0.625rem;
+    font-size: 0.575rem;
     font-weight: 400;
-    color: var(--text-secondary);
+    color: var(--text-muted);
 }
 
 .history-hint {
     width: 100%;
     text-align: center;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-style: italic;
-    color: var(--text-secondary);
-    opacity: 0.7;
-    margin-top: 0.25rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
 }
 
+/* ---- Card Footer (source + timestamp) ---- */
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid var(--bg-secondary);
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    padding-top: 0.6rem;
+    margin-top: 0.6rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.65rem;
+    color: var(--text-muted);
 }
 
-.source {
-    font-weight: 500;
-}
+.source { font-weight: 500; }
+.timestamp { font-style: italic; }
 
-.timestamp {
-    font-style: italic;
-}
-
-/* Freshness Indicators */
-.card.fresh {
-    border-left: 4px solid var(--success-color);
-}
-
-.card.stale {
-    border-left: 4px solid var(--warning-color);
-}
-
-.card.old {
-    border-left: 4px solid var(--danger-color);
-}
+/* Freshness: subtle left border */
+.metric-card.fresh, .chart-card.fresh { border-left: 3px solid var(--accent-green); }
+.metric-card.stale, .chart-card.stale { border-left: 3px solid #f59e0b; }
+.metric-card.old,   .chart-card.old   { border-left: 3px solid var(--accent-red); }
 
 /* Footer */
 .footer {
     text-align: center;
-    color: white;
-    padding: 2rem 0;
+    color: var(--text-muted);
+    padding: 1.5rem 0;
+    font-size: 0.75rem;
 }
 
-.footer p {
-    margin-bottom: 0.5rem;
-    opacity: 0.9;
-}
+.footer p { margin-bottom: 0.35rem; }
 
 .disclaimer {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     opacity: 0.7;
     max-width: 600px;
     margin: 0 auto;
 }
 
 /* Loading State */
-.card.loading {
-    opacity: 0.6;
+.metric-card.loading, .chart-card.loading {
+    opacity: 0.5;
     pointer-events: none;
 }
 
-.card.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
 @keyframes spin {
-    to { transform: translate(-50%, -50%) rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .title {
-        font-size: 1.5rem;
-    }
-    
-    .subtitle {
-        font-size: 0.875rem;
-    }
-    
-    .dashboard-grid {
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+    body { padding: 0.75rem; }
+
+    .header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+
+    .top-row {
         grid-template-columns: 1fr;
-        gap: 1rem;
     }
-    
-    .card {
-        padding: 1.25rem;
+
+    .chart-cards {
+        grid-template-columns: 1fr;
     }
-    
-    .main-price {
-        font-size: 1.5rem;
-    }
-    
-    .card-icon {
-        font-size: 2rem;
-    }
+
+    .metric-value { font-size: 1.4rem; }
+    .chart-price { font-size: 1.25rem; }
+    .chart-wrapper { min-height: 120px; }
 }
 
-@media (max-width: 480px) {
-    body {
-        padding: 0.5rem;
-    }
-    
-    .title {
-        font-size: 1.25rem;
-    }
-    
-    .card {
-        padding: 1rem;
-    }
-    
-    .card-title {
-        font-size: 1rem;
-    }
-    
-    .main-price {
-        font-size: 1.25rem;
-    }
-}
-
-/* Print Styles */
+/* Print */
 @media print {
-    body {
-        background: white;
-    }
-    
-    .refresh-btn {
-        display: none;
-    }
-    
-    .card {
+    body { background: #fff; color: #000; }
+    .refresh-btn { display: none; }
+    .metric-card, .chart-card {
         break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid var(--border-color);
+        border: 1px solid #ccc;
+        background: #fff;
     }
 }

@@ -375,7 +375,6 @@ body {
 }
 
 .source { font-weight: 500; }
-.timestamp { font-style: italic; }
 
 /* Freshness: subtle left border */
 .metric-card.fresh, .chart-card.fresh { border-left: 3px solid var(--accent-green); }

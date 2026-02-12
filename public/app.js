@@ -34,18 +34,6 @@ function getFreshnessClass(timestamp) {
     return 'old';
 }
 
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    if (diff < 60000) return 'Just now';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
-    if (date.toDateString() === now.toDateString()) {
-        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    }
-    return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-
 function formatChangeBadge(el, changePercent) {
     if (changePercent === null || changePercent === undefined) {
         el.textContent = '--';
@@ -68,7 +56,6 @@ function updateGoldCard(data, history) {
     document.getElementById('goldSellSmall').textContent = formatVietnameseNumber(data.sell_price, 0);
     document.getElementById('goldUnit').textContent = data.unit || 'VND/tael';
     document.getElementById('goldSource').textContent = data.source || '--';
-    document.getElementById('goldTimestamp').textContent = formatTimestamp(data.timestamp);
 
     // 1W change for the top badge
     const badge = document.getElementById('goldBadge');
@@ -83,7 +70,6 @@ function updateUsdCard(data, history) {
     const card = document.getElementById('usdCard');
     document.getElementById('usdRate').textContent = formatVietnameseNumber(data.sell_rate, 0);
     document.getElementById('usdSource').textContent = data.source || '--';
-    document.getElementById('usdTimestamp').textContent = formatTimestamp(data.timestamp);
 
     const badge = document.getElementById('usdBadge');
     const weekChange = history && history.find(c => c.period === '1W');
@@ -97,7 +83,6 @@ function updateBtcCard(data, history) {
     const card = document.getElementById('btcCard');
     document.getElementById('btcRate').textContent = formatVietnameseNumber(data.btc_to_vnd, 0);
     document.getElementById('btcSource').textContent = data.source || '--';
-    document.getElementById('btcTimestamp').textContent = formatTimestamp(data.timestamp);
 
     const changeEl = document.getElementById('btcChange');
     const activeBtn = document.querySelector('[data-chart="btc"] .period-btn.active');
@@ -122,7 +107,6 @@ function updateVn30Card(data, history) {
     const card = document.getElementById('vn30Card');
     document.getElementById('vn30Value').textContent = formatVietnameseNumber(data.index_value, 2);
     document.getElementById('vn30Source').textContent = data.source || '--';
-    document.getElementById('vn30Timestamp').textContent = formatTimestamp(data.timestamp);
 
     const changeEl = document.getElementById('vn30Change');
     const activeBtn = document.querySelector('[data-chart="vn30"] .period-btn.active');

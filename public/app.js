@@ -1,8 +1,8 @@
 // Vietnam Gold & Market Dashboard — Dark Fintech Frontend
 
 const DATA_URL = 'data.json';
-const REFRESH_INTERVAL = 10 * 60 * 1000;
-const FRESHNESS_THRESHOLDS = { fresh: 5 * 60 * 1000, stale: 10 * 60 * 1000 };
+const REFRESH_INTERVAL = 30 * 60 * 1000;
+const FRESHNESS_THRESHOLDS = { fresh: 35 * 60 * 1000, stale: 65 * 60 * 1000 };
 
 // Period -> max days for filtering timeseries
 const PERIOD_DAYS = { '1W': 7, '1M': 30, '1Y': 365, '3Y': 1095 };
@@ -106,7 +106,8 @@ function updateBtcCard(data, history) {
     if (periodChange && periodChange.change_percent !== null) {
         const pct = parseFloat(periodChange.change_percent);
         const sign = pct >= 0 ? '+' : '';
-        changeEl.textContent = `↗ ${sign}${formatVietnameseNumber(pct, 2)}%`;
+        const arrow = pct >= 0 ? '↗' : '↘';
+        changeEl.textContent = `${arrow} ${sign}${formatVietnameseNumber(pct, 2)}%`;
         changeEl.className = 'chart-change ' + (pct >= 0 ? 'positive' : 'negative');
     } else {
         changeEl.textContent = '--';
@@ -130,7 +131,8 @@ function updateVn30Card(data, history) {
     if (periodChange && periodChange.change_percent !== null) {
         const pct = parseFloat(periodChange.change_percent);
         const sign = pct >= 0 ? '+' : '';
-        changeEl.textContent = `↗ ${sign}${formatVietnameseNumber(pct, 2)}%`;
+        const arrow = pct >= 0 ? '↗' : '↘';
+        changeEl.textContent = `${arrow} ${sign}${formatVietnameseNumber(pct, 2)}%`;
         changeEl.className = 'chart-change ' + (pct >= 0 ? 'positive' : 'negative');
     } else {
         changeEl.textContent = '--';
@@ -295,6 +297,26 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
 
 // ---- Period selector wiring ----
 
+function updateChartChangeText(chartKey, period) {
+    const historyKey = chartKey === 'btc' ? 'bitcoin' : 'vn30';
+    const changeElId = chartKey === 'btc' ? 'btcChange' : 'vn30Change';
+    const changeEl = document.getElementById(changeElId);
+    if (!changeEl || !lastData || !lastData.history) return;
+
+    const history = lastData.history[historyKey];
+    const periodChange = history && history.find(c => c.period === period);
+    if (periodChange && periodChange.change_percent !== null) {
+        const pct = parseFloat(periodChange.change_percent);
+        const sign = pct >= 0 ? '+' : '';
+        const arrow = pct >= 0 ? '↗' : '↘';
+        changeEl.textContent = `${arrow} ${sign}${formatVietnameseNumber(pct, 2)}%`;
+        changeEl.className = 'chart-change ' + (pct >= 0 ? 'positive' : 'negative');
+    } else {
+        changeEl.textContent = '--';
+        changeEl.className = 'chart-change';
+    }
+}
+
 function initPeriodSelectors() {
     document.querySelectorAll('.period-selector').forEach(selector => {
         const chartKey = selector.dataset.chart; // 'btc' or 'vn30'
@@ -308,6 +330,7 @@ function initPeriodSelectors() {
                 const canvasId = chartKey === 'btc' ? 'btcChart' : 'vn30Chart';
                 const assetKey = chartKey === 'btc' ? 'bitcoin' : 'vn30';
                 createOrUpdateChart(canvasId, assetKey, period);
+                updateChartChangeText(chartKey, period);
             });
         });
     });

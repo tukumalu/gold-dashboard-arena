@@ -11,7 +11,7 @@ from decimal import Decimal
 
 from .base import Repository
 from ..models import UsdVndRate
-from ..config import EGCURRENCY_URL, CHOGIA_AJAX_URL, HEADERS, REQUEST_TIMEOUT, OPEN_ER_API_URL
+from ..config import EGCURRENCY_URL, CHOGIA_AJAX_URL, HEADERS, REQUEST_TIMEOUT, OPEN_ER_API_URL, BLACK_MARKET_PREMIUM
 from ..utils import cached, sanitize_vn_number
 
 
@@ -135,14 +135,17 @@ class CurrencyRepository(Repository[UsdVndRate]):
         if not vnd_rate:
             raise ValueError("No VND rate in Open ER API response")
         
-        sell_rate = Decimal(str(vnd_rate))
+        official_rate = Decimal(str(vnd_rate))
         
-        if sell_rate < 20000 or sell_rate > 35000:
-            raise ValueError(f"USD rate {sell_rate} outside expected range")
+        if official_rate < 20000 or official_rate > 35000:
+            raise ValueError(f"USD rate {official_rate} outside expected range")
+        
+        # Apply black market premium since the official bank rate is lower
+        sell_rate = (official_rate * BLACK_MARKET_PREMIUM).quantize(Decimal("0.01"))
         
         return UsdVndRate(
             sell_rate=sell_rate,
-            source="ExchangeRate API",
+            source="ExchangeRate API (est.)",
             timestamp=datetime.now()
         )
 

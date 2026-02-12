@@ -3,6 +3,8 @@ Configuration file for Vietnam Gold Dashboard.
 Contains URLs, HTTP headers, CSS selectors, and cache settings.
 """
 
+from decimal import Decimal
+
 CACHE_TTL_SECONDS = 600
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -42,6 +44,10 @@ WEBGIA_GOLD_1Y_URL = "https://webgia.com/gia-vang/sjc/bieu-do-1-nam.html"
 
 # Period label -> number of days for historical lookups
 HISTORY_PERIODS = {"1W": 7, "1M": 30, "1Y": 365, "3Y": 1095}
+
+# Approximate premium of VN black market USD/VND over the official bank rate.
+# Applied when chogia.vn (black market source) is unreachable (e.g., from GH Actions).
+BLACK_MARKET_PREMIUM = Decimal("1.025")  # ~2.5%
 
 REQUEST_TIMEOUT = 10
 

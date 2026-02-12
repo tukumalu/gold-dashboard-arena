@@ -72,21 +72,21 @@ def serialize_data(data: DashboardData) -> dict:
             'sell_price': float(data.gold.sell_price) if data.gold.sell_price else None,
             'unit': data.gold.unit,
             'source': data.gold.source,
-            'timestamp': data.gold.timestamp.isoformat() if data.gold.timestamp else None
+            'timestamp': (data.gold.timestamp.isoformat() + 'Z') if data.gold.timestamp else None
         }
     
     if data.usd_vnd:
         result['usd_vnd'] = {
             'sell_rate': float(data.usd_vnd.sell_rate) if data.usd_vnd.sell_rate else None,
             'source': data.usd_vnd.source,
-            'timestamp': data.usd_vnd.timestamp.isoformat() if data.usd_vnd.timestamp else None
+            'timestamp': (data.usd_vnd.timestamp.isoformat() + 'Z') if data.usd_vnd.timestamp else None
         }
     
     if data.bitcoin:
         result['bitcoin'] = {
             'btc_to_vnd': float(data.bitcoin.btc_to_vnd) if data.bitcoin.btc_to_vnd else None,
             'source': data.bitcoin.source,
-            'timestamp': data.bitcoin.timestamp.isoformat() if data.bitcoin.timestamp else None
+            'timestamp': (data.bitcoin.timestamp.isoformat() + 'Z') if data.bitcoin.timestamp else None
         }
     
     if data.vn30:
@@ -94,7 +94,7 @@ def serialize_data(data: DashboardData) -> dict:
             'index_value': float(data.vn30.index_value) if data.vn30.index_value else None,
             'change_percent': float(data.vn30.change_percent) if data.vn30.change_percent else None,
             'source': data.vn30.source,
-            'timestamp': data.vn30.timestamp.isoformat() if data.vn30.timestamp else None
+            'timestamp': (data.vn30.timestamp.isoformat() + 'Z') if data.vn30.timestamp else None
         }
     
     # Add metadata

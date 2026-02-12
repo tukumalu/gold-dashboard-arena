@@ -88,7 +88,15 @@
   - Unified timestamps: removed per-card footer timestamps, keeping only the single header "Updated HH:MM:SS" timestamp for consistency.
   - Cleaned up dead code: removed unused `formatTimestamp()` function and `.timestamp` CSS rule.
 
+- **Firebase vs Localhost Mismatch Fixes (Feb 12 2026):**
+  - **Timestamp fix:** Appended `Z` (UTC marker) to all `.isoformat()` calls in `generate_data.py`. GH Actions runs in UTC but `datetime.now()` produced naive timestamps; JS interpreted them as local time → cards always showed red "old" borders. Now JS correctly parses as UTC.
+  - **Gold 3Y fix:** Added SJC seed entries at `2023-01-15` and `2023-02-12` to `_SJC_HISTORICAL_SEEDS` in `history_repo.py`. The 3Y lookback was returning null because `.cache/history.json` is ephemeral on GH runners and the nearest seed (`2023-02-10`) was borderline.
+  - **USD/VND black market premium:** chogia.vn is geo-blocked from GH Actions (US/EU IPs), causing fallback to ExchangeRate API (official bank rate ~25,946 instead of black market ~26,500). Added `BLACK_MARKET_PREMIUM = 1.025` to `config.py` and applied it in `currency_repo.py` `_fetch_from_open_er_api()`. Source labeled "ExchangeRate API (est.)".
+  - **Badge truncation fix:** Added `min-width: 0; white-space: nowrap;` to `.history-badge` in `styles.css` to prevent "N/A" truncating to "N" on the Gold card.
+  - **Cache-busting:** Bumped `?v=3` → `?v=4` on CSS/JS references in `index.html`.
+  - 25/25 tests still passing.
+
 ## Next Steps
-1. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
-2. (Optional) Refine Bitcoin scraper for more reliable VND conversion.
-3. Deploy latest fixes to Firebase.
+1. Commit & push to trigger GH Actions deploy to Firebase.
+2. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
+3. (Optional) Refine Bitcoin scraper for more reliable VND conversion.

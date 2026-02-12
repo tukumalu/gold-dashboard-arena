@@ -301,6 +301,7 @@ body {
 
 .history-badge {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -308,6 +309,7 @@ body {
     padding: 0.3rem 0.2rem;
     border-radius: 6px;
     background: var(--bg-input);
+    white-space: nowrap;
 }
 
 .history-badge .period-label {

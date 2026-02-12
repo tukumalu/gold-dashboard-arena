@@ -41,7 +41,9 @@ _WEBGIA_SELL_RE = re.compile(r'name:.B.n ra.,\s*data:(\[\[.*?\]\])')
 # These seed the local history store so 3Y data is available immediately.
 # Sources: VnExpress, Tuoi Tre, CafeF — prices are for SJC 1-lượng sell in HCMC.
 _SJC_HISTORICAL_SEEDS: List[Tuple[str, Decimal]] = [
+    ("2023-01-15", Decimal("66500000")),   # ~66.5M — early 2023 baseline
     ("2023-02-10", Decimal("66800000")),   # ~66.8M — VnExpress Feb 2023
+    ("2023-02-12", Decimal("66800000")),   # ~66.8M — exact 3Y anchor
     ("2023-06-01", Decimal("67500000")),   # ~67.5M — stable mid-2023
     ("2023-10-01", Decimal("69000000")),   # ~69.0M — Q4 2023
     ("2024-02-10", Decimal("79000000")),   # ~79.0M — VnExpress Feb 2024
@@ -57,6 +59,7 @@ _USD_VND_HISTORICAL_SEEDS: List[Tuple[str, Decimal]] = [
     # --- 2023 ---
     ("2023-01-15", Decimal("23850")),
     ("2023-02-10", Decimal("23880")),   # anchor — VnExpress Feb 2023
+    ("2023-02-13", Decimal("23880")),   # exact 3Y anchor
     ("2023-03-15", Decimal("23900")),
     ("2023-04-15", Decimal("23920")),
     ("2023-05-15", Decimal("23940")),

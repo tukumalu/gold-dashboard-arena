@@ -90,7 +90,8 @@
 
 - **Firebase vs Localhost Mismatch Fixes (Feb 12 2026):**
   - **Timestamp fix:** Appended `Z` (UTC marker) to all `.isoformat()` calls in `generate_data.py`. GH Actions runs in UTC but `datetime.now()` produced naive timestamps; JS interpreted them as local time → cards always showed red "old" borders. Now JS correctly parses as UTC.
-  - **Gold 3Y fix:** Added SJC seed entries at `2023-01-15` and `2023-02-12` to `_SJC_HISTORICAL_SEEDS` in `history_repo.py`. The 3Y lookback was returning null because `.cache/history.json` is ephemeral on GH runners and the nearest seed (`2023-02-10`) was borderline.
+  - **Gold 3Y fix:** Added SJC seed entries at `2023-01-15` and `2023-02-12` to `_SJC_HISTORICAL_SEEDS` in `history_repo.py`. The 3Y lookback was returning null because `MAX_LOOKUP_TOLERANCE_DAYS=3` uses `timedelta(days=3)` (exactly 72h) and the nearest seed (`2023-02-10`) had a delta of 3d19h — just over the limit.
+  - **USD/VND 3Y fix:** Same root cause — added seed at `2023-02-13` to `_USD_VND_HISTORICAL_SEEDS`. USD/VND 3Y now shows +10.08%.
   - **USD/VND black market premium:** chogia.vn is geo-blocked from GH Actions (US/EU IPs), causing fallback to ExchangeRate API (official bank rate ~25,946 instead of black market ~26,500). Added `BLACK_MARKET_PREMIUM = 1.025` to `config.py` and applied it in `currency_repo.py` `_fetch_from_open_er_api()`. Source labeled "ExchangeRate API (est.)".
   - **Badge truncation fix:** Added `min-width: 0; white-space: nowrap;` to `.history-badge` in `styles.css` to prevent "N/A" truncating to "N" on the Gold card.
   - **Cache-busting:** Bumped `?v=3` → `?v=4` on CSS/JS references in `index.html`.

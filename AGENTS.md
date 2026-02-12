@@ -87,3 +87,25 @@ gold-dashboard-arena/
 
 ## 🎯 Project Goal
 Deploy a Firebase-backed dashboard that scrapes Vietnamese gold price (SJC/local sources) alongside USD/VND, Bitcoin, and VN30 index data.
+
+## 📝 Lessons Learned
+
+### Timestamps & Timezones
+- **`datetime.now()` is naive** — it has no timezone info. When serialized via `.isoformat()`, JavaScript's `new Date()` interprets it as *local time*, not UTC. GitHub Actions runs in UTC, so a timestamp like `12:06` gets interpreted as `12:06 local` by a UTC+7 browser → data appears 7 hours old.
+- **Fix:** Always append `Z` to `.isoformat()` output when the generating environment is UTC (e.g., GH Actions). Or use `datetime.now(timezone.utc)` for timezone-aware datetimes.
+
+### Ephemeral CI Runners & Local State
+- **`.cache/history.json` is lost on every GH Actions run.** The runner starts fresh each time. Seed data in code is the *only* historical data available on CI.
+- **`MAX_LOOKUP_TOLERANCE_DAYS` is stricter than it looks.** `timedelta(days=3)` is exactly 72h 0m 0s. A seed at `2023-02-10 00:00` vs a target of `2023-02-13 19:33` = 3d 19h → **exceeds** the tolerance. Always add seeds at the exact target date (e.g., `2023-02-12` for a 3Y lookback from `2026-02-12`).
+- **Rule:** When adding historical seed data, include an entry at the *exact* N-year anniversary date, not just nearby dates.
+
+### Geo-Blocking & Vietnamese Data Sources
+- **Vietnamese sites (chogia.vn, SJC, Vietstock) may block non-VN IPs.** GH Actions runners are in US/EU datacenters. Always implement a fallback chain that includes an internationally-accessible API.
+- **Official bank rates ≠ black market rates.** When falling back to international APIs (e.g., Open ExchangeRate API), apply a configurable premium (`BLACK_MARKET_PREMIUM`) and label the source clearly (e.g., "ExchangeRate API (est.)") so users know it's an approximation.
+- **Rule:** Every repository's fallback chain must include at least one source that works from any IP worldwide.
+
+### CSS Flex Overflow
+- **`flex: 1` children can shrink below their content width.** Text like "N/A" gets truncated to "N" if the flex container is squeezed. Fix: add `min-width: 0; white-space: nowrap;` to flex children that must display their full text.
+
+### Cache-Busting
+- **Firebase CDN caches CSS/JS aggressively.** Even with `Cache-Control: max-age=300`, browser caches may hold stale versions. Always bump the `?v=N` query parameter in `index.html` when changing `styles.css` or `app.js`.

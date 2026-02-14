@@ -3,7 +3,7 @@
 ## Project Snapshot
 - **Project:** Vietnam Gold Dashboard (Firebase Hosting)
 - **Goal:** Scrape Vietnamese gold price (SJC/local) alongside USD/VND (black market), Bitcoin, and VN30 index; render via web dashboard.
-- **Status:** Phase 7 Complete - Frontend bug fixes & consistency pass.
+- **Status:** Phase 8 Complete - Data integrity + production sync pass (Feb 14, 2026).
 - **Cadence:** 30-minute refresh (GitHub Actions cron `*/30`).
 
 ## Current Files
@@ -41,6 +41,15 @@
 - **Tiered Gold History:** webgia.com (1Y real SJC) → chogia.vn (30d fallback) → local store (3Y seeded from news). All scraped data backfills the local store for long-term accumulation.
 - **Historical Badges:** Dashboard shows 1W/1M/1Y/3Y % change badges for all 4 assets with color-coded positive/negative/N/A styling.
 - **Firebase Deployment:** Live at https://gold-dashboard-2026.web.app
+
+- **Data Integrity & Consistency Pass (Feb 14 2026):**
+  - Enforced UTC metadata: `generated_at` now serialized as timezone-aware ISO8601 with `Z`.
+  - Added `merge_current_into_timeseries()` in `generate_data.py` so same-day card values always match latest chart points.
+  - Added guard to discard future-dated timeseries points before same-day upsert.
+  - Fixed history lookup tolerance edge case: `history_store.get_value_at()` now compares by calendar day (not time-of-day timedeltas), preventing false `3Y` null misses.
+  - Frontend header now uses payload generation time (`generated_at`) with asset timestamp fallback, instead of browser-local fetch time.
+  - Frontend now explicitly resets cards to `Unavailable` when payload sections are missing, preventing stale DOM values from persisting.
+  - Cache-busting bumped for JS: `app.js?v=5`.
 
 ## Recent Changes (Feb 2026)
 - **Project reorganized:** Moved to standard Python `src` layout with `pyproject.toml`.
@@ -97,7 +106,19 @@
   - **Cache-busting:** Bumped `?v=3` → `?v=4` on CSS/JS references in `index.html`.
   - 25/25 tests still passing.
 
+- **Production Sync & Validation (Feb 14 2026):**
+  - Added regression tests in `tests/test_generate_data.py` for:
+    - UTC `generated_at` with `Z` suffix.
+    - Current snapshot vs latest timeseries reconciliation.
+    - Future-point discard behavior.
+  - Added regression test in `tests/test_history.py` for calendar-day tolerance near the 3-day boundary.
+  - Targeted suite now passing: **30/30** (`python -m unittest tests.test_generate_data tests.test_history`).
+  - Fresh `public/data.json` generated and sanity-checked: all 4 assets have same-day current values matching latest timeseries points.
+  - Committed release: `e50bbcb`.
+  - Deployed successfully to Firebase Hosting (`gold-dashboard-2026`): https://gold-dashboard-2026.web.app
+
 ## Next Steps
-1. Commit & push to trigger GH Actions deploy to Firebase.
-2. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
-3. (Optional) Refine Bitcoin scraper for more reliable VND conversion.
+1. Push commit `e50bbcb` to remote (if not already pushed) so GitHub Actions history reflects the release.
+2. Monitor next scheduled GH Actions run to confirm generated payload remains consistent over time.
+3. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
+4. (Optional) Add a lightweight frontend smoke test to assert missing-data reset behavior in CI.

@@ -3,7 +3,7 @@
 ## Project Snapshot
 - **Project:** Vietnam Gold Dashboard (Firebase Hosting)
 - **Goal:** Scrape Vietnamese gold price (SJC/local) alongside USD/VND (black market), Bitcoin, and VN30 index; render via web dashboard.
-- **Status:** Phase 9 In Progress - Reliability hardening + Hong Bang land benchmark comparison implemented (Feb 16, 2026).
+- **Status:** Phase 9 In Progress - Reliability hardening + Land first-class asset shipped and smokechecked (Feb 16, 2026).
 - **Cadence:** 30-minute refresh (GitHub Actions cron `*/30`).
 
 ## Current Files
@@ -18,7 +18,7 @@
 - **Data Layer:** 
   - `src/gold_dashboard/models.py` - Dataclasses for market data.
   - `src/gold_dashboard/utils.py` - Sanitization and caching logic.
-  - `src/gold_dashboard/repositories/` - Data fetching logic for Gold, Currency, Crypto, and Stocks.
+  - `src/gold_dashboard/repositories/` - Data fetching logic for Gold, Currency, Crypto, Stocks, and Land.
 - **Data Generation:** `src/gold_dashboard/generate_data.py` - Static export for Firebase.
 - **Tests:** `tests/` - Repository and parse tests.
 - **Scripts:** `scripts/` - Debug and HTML analysis scripts.
@@ -39,7 +39,7 @@
 - **Repository Pattern:** Clean abstraction for data sources.
 - **Graceful Degradation:** Fallback mechanisms ensure the dashboard remains functional even if scraping fails.
 - **Tiered Gold History:** webgia.com (1Y real SJC) → chogia.vn (30d fallback) → local store (3Y seeded from news). All scraped data backfills the local store for long-term accumulation.
-- **Historical Badges:** Dashboard shows 1D/1W/1M/1Y/3Y % change badges for all 4 assets with color-coded positive/negative/N/A styling.
+- **Historical Badges:** Dashboard shows 1D/1W/1M/1Y/3Y % change badges for all 5 assets with color-coded positive/negative/N/A styling.
 - **Firebase Deployment:** Live at https://gold-dashboard-2026.web.app
 
 - **Data Integrity & Consistency Pass (Feb 14 2026):**
@@ -163,8 +163,18 @@
     - `tests/test_history.py`: land included in required history assets + land seed tests.
     - `tests/test_land_repo.py`: parser extraction and fallback behavior.
 
+- **Smokecheck + Gold 3Y Regression Fix (Feb 16 2026):**
+  - Smokecheck completed end-to-end:
+    - `python -m gold_dashboard.generate_data` passed with all required asset sections, including `land`.
+    - Contract assertion verified `land` in current payload, `history.land`, and `timeseries.land`.
+    - Local web smokecheck served via `python -m http.server` against `public/`.
+  - Fixed missing Gold 3Y history value:
+    - Root cause: strict local-history tolerance could miss 3Y anniversary while nearby SJC seeds existed.
+    - Added 3Y seed-nearest fallback in `_gold_changes()` using `_find_seed_rate(..., max_delta_days=45)`.
+    - Added regression test `test_gold_3y_uses_seed_nearest_when_local_misses` in `tests/test_history.py`.
+    - Regenerated payload confirms Gold `3Y` is now populated (non-null old value and percent change).
+
 ## Next Steps
-1. Push the latest CI severity-policy tuning commit(s) and watch at least 2 scheduled runs for green deploys.
-2. Confirm production payload keeps `health.severe_degradation=false` during temporary VN30 source outages while still surfacing `degraded` reasons.
-3. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
-4. (Optional) Add a lightweight frontend smoke test to assert degraded-payload/LKG restoration behavior in CI.
+1. Monitor at least 2 scheduled GitHub Actions runs to confirm stable deploys with required `land` payload gating.
+2. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
+3. (Optional) Add a lightweight frontend smoke test in CI to validate card rendering contract (`gold/usd/land` current + history badges).

@@ -34,6 +34,51 @@ class TestGenerateDataSerialization(unittest.TestCase):
         self.assertIsNotNone(parsed.tzinfo)
         self.assertEqual(parsed.tzinfo, timezone.utc)
 
+    def test_serialize_data_includes_land_benchmark_with_comparisons(self) -> None:
+        data = DashboardData(
+            gold=GoldPrice(
+                buy_price=Decimal("176000000"),
+                sell_price=Decimal("180000000"),
+                source="DOJI",
+            ),
+            usd_vnd=UsdVndRate(
+                sell_rate=Decimal("25000"),
+                source="chogia.vn",
+            ),
+            bitcoin=BitcoinPrice(
+                btc_to_vnd=Decimal("2000000000"),
+                source="CoinMarketCap",
+            ),
+        )
+
+        payload = serialize_data(data)
+        self.assertIn("land_benchmark", payload)
+
+        land = payload["land_benchmark"]
+        self.assertEqual(land["location"], "Hong Bang Street, District 11, Ho Chi Minh City")
+        self.assertEqual(land["unit"], "VND/m2")
+        self.assertEqual(land["source"], "Manual estimate (user-provided)")
+
+        self.assertEqual(land["price_range_vnd_per_m2"]["min"], 230000000.0)
+        self.assertEqual(land["price_range_vnd_per_m2"]["max"], 280000000.0)
+        self.assertEqual(land["price_range_vnd_per_m2"]["mid"], 255000000.0)
+
+        comparisons = land["comparisons"]
+        self.assertAlmostEqual(comparisons["gold_tael_per_m2"], 1.41666667, places=6)
+        self.assertAlmostEqual(comparisons["m2_per_gold_tael"], 0.70588235, places=6)
+        self.assertAlmostEqual(comparisons["m2_per_btc"], 7.84313725, places=6)
+        self.assertAlmostEqual(comparisons["m2_per_1m_usd"], 98.03921569, places=6)
+
+    def test_serialize_data_land_benchmark_comparisons_are_null_when_assets_missing(self) -> None:
+        payload = serialize_data(DashboardData())
+        self.assertIn("land_benchmark", payload)
+
+        comparisons = payload["land_benchmark"]["comparisons"]
+        self.assertIsNone(comparisons["gold_tael_per_m2"])
+        self.assertIsNone(comparisons["m2_per_gold_tael"])
+        self.assertIsNone(comparisons["m2_per_btc"])
+        self.assertIsNone(comparisons["m2_per_1m_usd"])
+
 
 class TestMergeCurrentIntoTimeseries(unittest.TestCase):
     """Ensure latest card values and chart values stay in sync."""

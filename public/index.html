@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Vietnam Gold & Market Dashboard - Real-time prices for SJC Gold, USD/VND, Bitcoin, and VN30 Index">
     <title>Vietnam Gold & Market Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="styles.css?v=6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,6 +82,50 @@
             </div>
         </div>
 
+        <section class="land-benchmark-card" id="landBenchmarkCard">
+            <div class="land-header">
+                <div>
+                    <h2 class="land-title">Land Benchmark (Hong Bang, D11)</h2>
+                    <p class="land-location" id="landLocation">--</p>
+                </div>
+                <span class="land-unit" id="landUnit">VND/m2</span>
+            </div>
+
+            <div class="land-range-row">
+                <div class="land-pill">
+                    <span class="pill-label">Range</span>
+                    <span class="pill-value" id="landRange">--</span>
+                </div>
+                <div class="land-pill">
+                    <span class="pill-label">Midpoint</span>
+                    <span class="pill-value" id="landMid">--</span>
+                </div>
+            </div>
+
+            <div class="land-comparison-grid">
+                <div class="land-comp-item">
+                    <span class="land-comp-label">Tael needed / m2</span>
+                    <span class="land-comp-value" id="landGoldTaelPerM2">--</span>
+                </div>
+                <div class="land-comp-item">
+                    <span class="land-comp-label">m2 / 1 tael</span>
+                    <span class="land-comp-value" id="landM2PerGoldTael">--</span>
+                </div>
+                <div class="land-comp-item">
+                    <span class="land-comp-label">m2 / 1 BTC</span>
+                    <span class="land-comp-value" id="landM2PerBtc">--</span>
+                </div>
+                <div class="land-comp-item">
+                    <span class="land-comp-label">m2 / 1M USD</span>
+                    <span class="land-comp-value" id="landM2Per1MUsd">--</span>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <span class="source" id="landSource">--</span>
+            </div>
+        </section>
+
         <!-- Chart Cards -->
         <div class="chart-cards">
             <!-- Bitcoin Chart Card -->
@@ -140,6 +184,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>

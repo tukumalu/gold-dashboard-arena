@@ -11,6 +11,14 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .config import (
+    LAND_BENCHMARK_LOCATION,
+    LAND_BENCHMARK_MAX_VND_PER_M2,
+    LAND_BENCHMARK_MID_VND_PER_M2,
+    LAND_BENCHMARK_MIN_VND_PER_M2,
+    LAND_BENCHMARK_SOURCE,
+    LAND_BENCHMARK_UNIT,
+)
 from .repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository, HistoryRepository
 from .models import DashboardData, AssetHistoricalData
 from .history_store import record_snapshot
@@ -65,6 +73,45 @@ def fetch_all_data() -> DashboardData:
     return data
 
 
+def _safe_divide(numerator: Optional[Decimal], denominator: Optional[Decimal]) -> Optional[Decimal]:
+    """Safely divide Decimal values and return None on missing/zero denominator."""
+    if numerator is None or denominator is None or denominator == 0:
+        return None
+    return numerator / denominator
+
+
+def _build_land_benchmark(data: DashboardData) -> Dict[str, Any]:
+    """Build static land benchmark block plus derived asset comparisons."""
+    midpoint = LAND_BENCHMARK_MID_VND_PER_M2
+
+    gold_sell_price = data.gold.sell_price if data.gold else None
+    bitcoin_price = data.bitcoin.btc_to_vnd if data.bitcoin else None
+    usd_sell_rate = data.usd_vnd.sell_rate if data.usd_vnd else None
+    one_million_usd_vnd = usd_sell_rate * Decimal("1000000") if usd_sell_rate is not None else None
+
+    gold_tael_per_m2 = _safe_divide(midpoint, gold_sell_price)
+    m2_per_gold_tael = _safe_divide(gold_sell_price, midpoint)
+    m2_per_btc = _safe_divide(bitcoin_price, midpoint)
+    m2_per_1m_usd = _safe_divide(one_million_usd_vnd, midpoint)
+
+    return {
+        'location': LAND_BENCHMARK_LOCATION,
+        'unit': LAND_BENCHMARK_UNIT,
+        'source': LAND_BENCHMARK_SOURCE,
+        'price_range_vnd_per_m2': {
+            'min': float(LAND_BENCHMARK_MIN_VND_PER_M2),
+            'max': float(LAND_BENCHMARK_MAX_VND_PER_M2),
+            'mid': float(LAND_BENCHMARK_MID_VND_PER_M2),
+        },
+        'comparisons': {
+            'gold_tael_per_m2': float(gold_tael_per_m2) if gold_tael_per_m2 is not None else None,
+            'm2_per_gold_tael': float(m2_per_gold_tael) if m2_per_gold_tael is not None else None,
+            'm2_per_btc': float(m2_per_btc) if m2_per_btc is not None else None,
+            'm2_per_1m_usd': float(m2_per_1m_usd) if m2_per_1m_usd is not None else None,
+        },
+    }
+
+
 def serialize_data(data: DashboardData) -> dict:
     """Convert DashboardData to JSON-serializable dictionary."""
     result = {}
@@ -99,7 +146,9 @@ def serialize_data(data: DashboardData) -> dict:
             'source': data.vn30.source,
             'timestamp': (data.vn30.timestamp.isoformat() + 'Z') if data.vn30.timestamp else None
         }
-    
+
+    result['land_benchmark'] = _build_land_benchmark(data)
+
     # Add metadata
     result['generated_at'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 

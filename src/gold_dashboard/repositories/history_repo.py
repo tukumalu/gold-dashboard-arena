@@ -916,8 +916,8 @@ class HistoryRepository:
             if old_value is None:
                 old_value = get_value_at("vn30", target_date)
 
-            # Seed-nearest fallback for sparse periods
-            if old_value is None:
+            # Seed-nearest fallback only for long-horizon 3Y period
+            if old_value is None and label == "3Y":
                 old_value = self._find_seed_rate(
                     _VN30_HISTORICAL_SEEDS,
                     target_date,
@@ -976,6 +976,8 @@ class HistoryRepository:
         for date_str, value in _VN30_HISTORICAL_SEEDS:
             try:
                 dt = datetime.strptime(date_str, "%Y-%m-%d")
+                if get_value_at("vn30", dt) is not None:
+                    continue
                 record_snapshot("vn30", value, dt)
             except (ValueError, TypeError):
                 continue

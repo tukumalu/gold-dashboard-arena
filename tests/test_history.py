@@ -36,6 +36,7 @@ from gold_dashboard.repositories.history_repo import (
     _BTC_VND_HISTORICAL_SEEDS,
     _LAND_HISTORICAL_SEEDS,
     _USD_VND_HISTORICAL_SEEDS,
+    _VN30_HISTORICAL_SEEDS,
 )
 
 
@@ -392,6 +393,72 @@ class TestHistoryRepository(unittest.TestCase):
         self.assertEqual(result.asset_name, "vn30")
         has_data = any(c.change_percent is not None for c in result.changes)
         self.assertTrue(has_data)
+
+    @patch("gold_dashboard.repositories.history_repo.get_value_at")
+    @patch("gold_dashboard.repositories.history_repo.requests.get")
+    def test_vn30_short_periods_do_not_use_seed_fallback(
+        self, mock_get: MagicMock, mock_local: MagicMock
+    ) -> None:
+        """VN30 seed fallback must not fabricate 1D/1W/1M values when VPS + local fail."""
+        import requests.exceptions
+
+        mock_get.side_effect = requests.exceptions.ConnectionError("down")
+        mock_local.return_value = None
+
+        repo = HistoryRepository()
+        with patch("gold_dashboard.repositories.history_repo.datetime", wraps=datetime) as mock_dt:
+            mock_dt.now.return_value = datetime(2026, 2, 16, 12, 0, 0)
+            result = repo._vn30_changes(Decimal("1950"))
+
+        change_map = {c.period: c for c in result.changes}
+        self.assertIsNone(change_map["1D"].old_value)
+        self.assertIsNone(change_map["1W"].old_value)
+        self.assertIsNone(change_map["1M"].old_value)
+
+    @patch("gold_dashboard.repositories.history_repo.get_value_at")
+    @patch("gold_dashboard.repositories.history_repo.requests.get")
+    def test_vn30_3y_uses_seed_fallback_when_vps_and_local_miss(
+        self, mock_get: MagicMock, mock_local: MagicMock
+    ) -> None:
+        """VN30 3Y should still resolve from nearest seed when VPS/local lookup fail."""
+        import requests.exceptions
+
+        mock_get.side_effect = requests.exceptions.ConnectionError("down")
+        mock_local.return_value = None
+
+        repo = HistoryRepository()
+        with patch("gold_dashboard.repositories.history_repo.datetime", wraps=datetime) as mock_dt:
+            mock_dt.now.return_value = datetime(2026, 2, 16, 12, 0, 0)
+            result = repo._vn30_changes(Decimal("1950"))
+
+        change_map = {c.period: c for c in result.changes}
+        self.assertEqual(change_map["3Y"].old_value, Decimal("1087.36"))
+        self.assertIsNotNone(change_map["3Y"].change_percent)
+
+    @patch("gold_dashboard.repositories.history_repo.record_snapshot")
+    @patch("gold_dashboard.repositories.history_repo.get_value_at")
+    def test_seed_historical_vn30_does_not_overwrite_existing_snapshot(
+        self, mock_local: MagicMock, mock_record: MagicMock
+    ) -> None:
+        """VN30 seeding should skip dates that already have local snapshots."""
+        existing_date_str, _ = _VN30_HISTORICAL_SEEDS[0]
+        existing_day = datetime.strptime(existing_date_str, "%Y-%m-%d").date()
+
+        def _local_value(asset: str, target: datetime):
+            if asset == "vn30" and target.date() == existing_day:
+                return Decimal("9999")
+            return None
+
+        mock_local.side_effect = _local_value
+
+        HistoryRepository._seed_historical_vn30()
+
+        called_days = {
+            call.args[2].strftime("%Y-%m-%d")
+            for call in mock_record.call_args_list
+        }
+        self.assertNotIn(existing_date_str, called_days)
+        self.assertEqual(len(mock_record.call_args_list), len(_VN30_HISTORICAL_SEEDS) - 1)
 
 
 class TestUsdVndSeeds(unittest.TestCase):

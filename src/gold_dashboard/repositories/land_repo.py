@@ -62,7 +62,7 @@ class LandRepository(Repository[LandPrice]):
             raise ValueError("No valid Hong Bang listing prices parsed from alonhadat")
 
         return LandPrice(
-            price_per_m2=median(valid_prices),
+            price_per_m2=round(median(valid_prices)),
             source="alonhadat.com.vn",
             location=LAND_LOCATION,
             unit=LAND_UNIT,

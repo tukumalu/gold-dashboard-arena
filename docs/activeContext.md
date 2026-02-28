@@ -3,14 +3,14 @@
 ## Project Snapshot
 - **Project:** Vietnam Gold Dashboard (Firebase Hosting)
 - **Goal:** Scrape Vietnamese gold price (SJC/local) alongside USD/VND (black market), Bitcoin, and VN30 index; render via web dashboard.
-- **Status:** Phase 9 In Progress - Reliability hardening + Land first-class asset shipped and smokechecked (Feb 16, 2026).
+- **Status:** Phase 10 Complete - Cyberpunk neon theme, VN30 chart fix, land fallback hardening, deployed (Feb 28, 2026).
 - **Cadence:** 30-minute refresh (GitHub Actions cron `*/30`).
 
 ## Current Files
 - **Web Dashboard (Firebase):**
   - `public/index.html` - Responsive web dashboard with Vietnamese number formatting.
-  - `public/styles.css` - Modern, mobile-friendly styling.
-  - `public/app.js` - Frontend data fetching and rendering.
+  - `public/styles.css` - Cyberpunk neon theme with responsive layout.
+  - `public/app.js` - Frontend data fetching, rendering, and neon chart styling.
   - `public/data.json` - Generated market data (auto-generated).
   - `firebase.json` - Firebase hosting configuration.
   - `.firebaserc` - Firebase project settings.
@@ -174,7 +174,39 @@
     - Added regression test `test_gold_3y_uses_seed_nearest_when_local_misses` in `tests/test_history.py`.
     - Regenerated payload confirms Gold `3Y` is now populated (non-null old value and percent change).
 
+- **Cyberpunk Neon Theme + 5-Issue Fix (Feb 28 2026):**
+  - **VN30 flat line charts fixed:**
+    - Removed 40 inaccurate hardcoded `_VN30_HISTORICAL_SEEDS` from `_vn30_timeseries()` in `history_repo.py`. Seeds created ±200pt spikes that compressed real VPS data into apparent flat lines. Seeds retained for `_vn30_changes()` 3Y % fallback only.
+    - Replaced `filterTimeseries()` all-data dump fallback in `app.js` with progressive window expansion (2x → 4x → 90d → last 60 points). Short periods during data gaps (e.g., Tet holiday) now show the nearest available data instead of compressing 768+ points.
+  - **Land fallback chain hardened (4-step):**
+    - Added homedy.com as international-friendly scraper (`_fetch_from_homedy()` in `land_repo.py`). Parses pre-calculated "X tr/m2" values directly from listing cards.
+    - Added `_parse_vn_number()` heuristic for Vietnamese number formatting: dot + 3 trailing digits = thousands separator, dot + 1-2 digits = decimal point. Prevents 10x price inflation on dot-decimal values.
+    - Added persistence layer: `_persist_last_good_scrape()` / `_load_last_good_scrape()` using `data/last_land_scrape.json` (gitignored).
+    - Hardcoded `_LAND_SEED` (183.8M from homedy.com 2026-02-28) as fallback when persisted file doesn't exist on fresh CI clones.
+    - Full chain: alonhadat.com.vn → homedy.com → persisted file → seed → hardcoded 255M.
+    - Config additions: `HOMEDY_HONG_BANG_URL`, `LAND_LAST_GOOD_SCRAPE_FILE` in `config.py`.
+  - **History badge sizing fixed:**
+    - `.period-value` increased to 0.78rem with 0.4rem/0.3rem padding; values like "+28,38%" no longer clip.
+    - Hover glow border added to badges.
+  - **Layout widened:**
+    - Container max-width 900px → 1400px.
+    - New 1100px tablet breakpoint: 2-col metrics (3rd card full-width), 1-col charts.
+    - Chart min-height increased from 140px to 180px.
+  - **Full cyberpunk neon theme:**
+    - Color palette: neon cyan (#00f0ff), green (#39ff14), pink (#ff2d55), magenta (#ff00ff), gold (#ffcf00).
+    - Orbitron font for headings and values; Inter retained for body text.
+    - Glowing card borders with `::before` top-edge gradient lines.
+    - Scanline overlay (`body::after` repeating-linear-gradient).
+    - Neon text-shadow on values, badge text, and change indicators.
+    - Chart line color switched to cyan with gradient fill; neon-styled tooltips.
+    - Custom neon scrollbar (`::-webkit-scrollbar` cyan theme).
+    - Freshness indicators now use inset glow shadows (green/gold/red).
+  - Cache-busting bumped: `styles.css?v=8`, `app.js?v=9`. Orbitron added to Google Fonts import.
+  - Verified end-to-end: `generate_data.py` produces land source "homedy.com" at 183.8M VND/m2.
+  - Deployed to Firebase: https://gold-dashboard-2026.web.app
+
 ## Next Steps
-1. Monitor at least 2 scheduled GitHub Actions runs to confirm stable deploys with required `land` payload gating.
+1. Monitor at least 2 scheduled GitHub Actions runs to confirm stable deploys with homedy.com land fallback working from CI.
 2. (Optional) Add buy/sell spread display for USD black market (chogia.vn provides both `gia_mua` and `gia_ban`).
 3. (Optional) Add a lightweight frontend smoke test in CI to validate card rendering contract (`gold/usd/land` current + history badges).
+4. (Optional) Add animated neon pulse or particle effects to the dashboard header.

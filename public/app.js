@@ -248,12 +248,28 @@ function filterTimeseries(series, periodKey) {
     cutoff.setDate(cutoff.getDate() - days);
     const cutoffStr = cutoff.toISOString().slice(0, 10);
 
-    const filtered = series.filter(p => p[0] >= cutoffStr);
-    // If filter yields too few points, show all data
-    const data = filtered.length >= 2 ? filtered : series;
+    let filtered = series.filter(p => p[0] >= cutoffStr);
+
+    // Progressive expansion: if <2 points in the requested window,
+    // try 2x, 4x, then cap at 90 days — never dump the entire dataset.
+    if (filtered.length < 2) {
+        const expansions = [days * 2, days * 4, 90];
+        for (const expandDays of expansions) {
+            const expandCutoff = new Date();
+            expandCutoff.setDate(expandCutoff.getDate() - expandDays);
+            const expandStr = expandCutoff.toISOString().slice(0, 10);
+            filtered = series.filter(p => p[0] >= expandStr);
+            if (filtered.length >= 2) break;
+        }
+        // Final fallback: last 60 data points (not all 768+)
+        if (filtered.length < 2) {
+            filtered = series.slice(-60);
+        }
+    }
+
     return {
-        labels: data.map(p => p[0]),
-        values: data.map(p => p[1])
+        labels: filtered.map(p => p[0]),
+        values: filtered.map(p => p[1])
     };
 }
 
@@ -265,10 +281,11 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
     const series = timeseriesData[assetKey];
     const { labels, values } = filterTimeseries(series, periodKey);
 
-    // Build gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 140);
-    gradient.addColorStop(0, 'rgba(0, 200, 83, 0.35)');
-    gradient.addColorStop(1, 'rgba(0, 200, 83, 0.0)');
+    // Build neon gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 180);
+    gradient.addColorStop(0, 'rgba(0, 240, 255, 0.30)');
+    gradient.addColorStop(0.5, 'rgba(0, 240, 255, 0.08)');
+    gradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
 
     const config = {
         type: 'line',
@@ -276,13 +293,13 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
             labels: labels,
             datasets: [{
                 data: values,
-                borderColor: '#00c853',
+                borderColor: '#00f0ff',
                 borderWidth: 2,
                 backgroundColor: gradient,
                 fill: true,
                 tension: 0.3,
                 pointRadius: 0,
-                pointHitRadius: 8,
+                pointHitRadius: 10,
             }]
         },
         options: {
@@ -293,13 +310,14 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
                 tooltip: {
                     mode: 'index',
                     intersect: false,
-                    backgroundColor: '#21262d',
-                    titleColor: '#e6edf3',
-                    bodyColor: '#8b949e',
-                    borderColor: 'rgba(255,255,255,0.06)',
+                    backgroundColor: 'rgba(12, 12, 26, 0.95)',
+                    titleColor: '#00f0ff',
+                    bodyColor: '#e8e8f0',
+                    borderColor: 'rgba(0, 240, 255, 0.3)',
                     borderWidth: 1,
-                    padding: 8,
+                    padding: 10,
                     displayColors: false,
+                    titleFont: { weight: '600' },
                     callbacks: {
                         label: function(ctx) {
                             return formatVietnameseNumber(ctx.parsed.y, 0);
@@ -310,15 +328,14 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
             scales: {
                 x: {
                     display: true,
-                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    grid: { color: 'rgba(0, 240, 255, 0.04)', drawBorder: false },
                     ticks: {
-                        color: '#484f58',
+                        color: '#50506a',
                         font: { size: 10, family: 'Inter' },
                         maxTicksLimit: 6,
                         maxRotation: 0,
                         callback: function(val, idx) {
                             const label = this.getLabelForValue(val);
-                            // Show short date: "Jan 5" or "Mar"
                             const d = new Date(label);
                             if (isNaN(d)) return label;
                             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -328,9 +345,9 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
                 y: {
                     display: true,
                     position: 'right',
-                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    grid: { color: 'rgba(0, 240, 255, 0.04)', drawBorder: false },
                     ticks: {
-                        color: '#484f58',
+                        color: '#50506a',
                         font: { size: 10, family: 'Inter' },
                         maxTicksLimit: 4,
                         callback: function(val) {
@@ -343,7 +360,7 @@ function createOrUpdateChart(canvasId, assetKey, periodKey) {
                 }
             },
             interaction: { mode: 'nearest', axis: 'x', intersect: false },
-            animation: { duration: 400 }
+            animation: { duration: 500, easing: 'easeOutQuart' }
         }
     };
 

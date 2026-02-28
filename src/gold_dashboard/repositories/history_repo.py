@@ -400,11 +400,14 @@ class HistoryRepository:
         return sorted([d, v] for d, v in merged.items())
 
     def _vn30_timeseries(self) -> List[List]:
-        """Fetch VPS TradingView data + seeds into a sorted date/value list."""
-        merged: Dict[str, float] = {}
+        """Fetch VPS TradingView data into a sorted date/value list.
 
-        for date_str, val in _VN30_HISTORICAL_SEEDS:
-            merged[date_str] = float(val)
+        Seeds are intentionally excluded from the chart timeseries because
+        they carry inaccurate round-number estimates that create visible
+        spikes when mixed with real VPS closes.  Seeds remain available
+        for ``_vn30_changes()`` (3-year % calc fallback only).
+        """
+        merged: Dict[str, float] = {}
 
         try:
             max_days = max(HISTORY_PERIODS.values())

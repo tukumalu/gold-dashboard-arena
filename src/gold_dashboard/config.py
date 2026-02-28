@@ -47,11 +47,15 @@ HISTORY_PERIODS = {"1D": 1, "1W": 7, "1M": 30, "1Y": 365, "3Y": 1095}
 
 # Land price source + fallback configuration (Hong Bang, District 11, HCMC)
 ALONHADAT_Q11_URL = "https://alonhadat.com.vn/nha-dat/can-ban/nha-mat-tien/ho-chi-minh/142/quan-11.html"
+HOMEDY_HONG_BANG_URL = "https://homedy.com/ban-nha-mat-pho-duong-hong-bang-quan-11-tp-ho-chi-minh"
 LAND_LOCATION = "Hong Bang Street, District 11, Ho Chi Minh City"
 LAND_UNIT = "VND/m2"
 LAND_FALLBACK_PRICE_PER_M2 = Decimal("255000000")
 LAND_MIN_VALID_VND_PER_M2 = Decimal("50000000")
 LAND_MAX_VALID_VND_PER_M2 = Decimal("800000000")
+
+# File path for persisting last successful land scrape (relative to project root)
+LAND_LAST_GOOD_SCRAPE_FILE = "data/last_land_scrape.json"
 
 # Approximate premium of VN black market USD/VND over the official bank rate.
 # Applied when chogia.vn (black market source) is unreachable (e.g., from GH Actions).

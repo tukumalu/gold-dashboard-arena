@@ -30,3 +30,4 @@ Thumbs.db
 
 # Data
 public/data.json
+data/last_land_scrape.json

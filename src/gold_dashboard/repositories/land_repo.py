@@ -28,6 +28,35 @@ from ..models import LandPrice
 from ..utils import cached
 
 
+def _parse_vn_number(raw: str) -> str:
+    """Convert a Vietnamese-formatted number string to a Python-parseable decimal string.
+
+    Vietnamese convention: dot = thousands separator, comma = decimal.
+    Heuristic for ambiguous dot-only values:
+      - dot followed by exactly 3 digits → thousands separator (e.g. "1.200" → "1200")
+      - dot followed by 1-2 digits → decimal point (e.g. "95.5" → "95.5")
+    """
+    has_comma = "," in raw
+    has_dot = "." in raw
+
+    if has_comma and has_dot:
+        # Full Vietnamese format: "1.200,5" → "1200.5"
+        return raw.replace(".", "").replace(",", ".")
+    if has_comma:
+        # Comma-only: "180,9" → "180.9"
+        return raw.replace(",", ".")
+    if has_dot:
+        # Dot-only: decide via digit count after the dot
+        parts = raw.split(".")
+        if len(parts) == 2 and len(parts[1]) == 3:
+            # Thousands separator: "1.200" → "1200"
+            return raw.replace(".", "")
+        # Decimal point: "95.5" → "95.5"  (keep as-is)
+        return raw
+    # No separator at all: "200" → "200"
+    return raw
+
+
 class LandRepository(Repository[LandPrice]):
     """Repository for land price per m2 around Hong Bang street, District 11."""
 
@@ -211,13 +240,11 @@ class LandRepository(Repository[LandPrice]):
         )
 
         for match in pattern.finditer(text):
-            raw = match.group(1).replace(".", "").replace(",", ".")
             try:
-                million_vnd = Decimal(raw)
-                # Convert triệu (million) to raw VND
+                million_vnd = Decimal(_parse_vn_number(match.group(1)))
                 vnd_per_m2 = million_vnd * Decimal("1000000")
                 prices.append(vnd_per_m2)
-            except InvalidOperation:
+            except (InvalidOperation, ValueError):
                 continue
 
         return prices
@@ -244,24 +271,37 @@ class LandRepository(Repository[LandPrice]):
             # Persistence is best-effort; never crash the pipeline
             print(f"[land] Warning: could not persist last good scrape: {e}")
 
+    # Hardcoded seed: used when the persisted file doesn't exist yet (e.g. fresh
+    # CI clone before any successful scrape).  Value from homedy.com 2026-02-28.
+    _LAND_SEED = {
+        "price_per_m2": "183800000",
+        "source": "homedy.com (seed)",
+        "location": LAND_LOCATION,
+        "unit": LAND_UNIT,
+        "timestamp": "2026-02-28T10:20:34",
+    }
+
     @staticmethod
     def _load_last_good_scrape() -> Optional[LandPrice]:
-        """Load the most recently persisted good scrape, if the file exists."""
+        """Load persisted scrape from disk, falling back to the hardcoded seed."""
         path = Path(LAND_LAST_GOOD_SCRAPE_FILE)
-        if not path.is_file():
-            return None
 
-        data = json.loads(path.read_text(encoding="utf-8"))
+        if path.is_file():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            label = "cached"
+        else:
+            data = LandRepository._LAND_SEED
+            label = "seed"
+
         price = Decimal(data["price_per_m2"])
 
-        # Sanity-check: reject obviously stale/corrupt values
         if not (LAND_MIN_VALID_VND_PER_M2 <= price <= LAND_MAX_VALID_VND_PER_M2):
             print(f"[land] Persisted price {price} outside valid range, ignoring")
             return None
 
         return LandPrice(
             price_per_m2=price,
-            source=f"{data['source']} (cached)",
+            source=f"{data['source']} ({label})",
             location=data.get("location", LAND_LOCATION),
             unit=data.get("unit", LAND_UNIT),
             timestamp=datetime.fromisoformat(data["timestamp"]),

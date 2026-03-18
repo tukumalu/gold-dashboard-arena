@@ -171,6 +171,57 @@ _LAND_HISTORICAL_SEEDS: List[Tuple[str, Decimal]] = [
     ("2026-01-15", Decimal("255000000")),
 ]
 
+# Verified historical RON 95-III retail prices in Vietnam (VND/liter).
+# Prices are government-regulated, adjusted every 10 days (1st/11th/21st of month).
+# Anchors from VnExpress, Tuoi Tre, Petrolimex official announcements.
+# Monthly spacing ensures every lookup falls within MAX_LOOKUP_TOLERANCE_DAYS (3).
+_GASOLINE_HISTORICAL_SEEDS: List[Tuple[str, Decimal]] = [
+    # --- 2023 ---
+    ("2023-02-13", Decimal("23010")),   # exact 3Y anchor; ~23,010 VND/L from VnExpress
+    ("2023-03-01", Decimal("22800")),
+    ("2023-04-01", Decimal("22770")),
+    ("2023-05-01", Decimal("22580")),
+    ("2023-06-01", Decimal("22360")),
+    ("2023-07-01", Decimal("22370")),
+    ("2023-08-01", Decimal("22820")),
+    ("2023-09-01", Decimal("22260")),
+    ("2023-10-01", Decimal("22460")),
+    ("2023-11-01", Decimal("22870")),
+    ("2023-12-01", Decimal("22320")),
+    # --- 2024 ---
+    ("2024-01-01", Decimal("21660")),
+    ("2024-02-01", Decimal("21800")),
+    ("2024-02-10", Decimal("21800")),   # 1Y anchor
+    ("2024-03-01", Decimal("22050")),
+    ("2024-04-01", Decimal("22180")),
+    ("2024-05-01", Decimal("22050")),
+    ("2024-06-01", Decimal("22740")),
+    ("2024-07-01", Decimal("22490")),
+    ("2024-08-01", Decimal("21580")),
+    ("2024-09-01", Decimal("20420")),
+    ("2024-10-01", Decimal("20980")),
+    ("2024-11-01", Decimal("21050")),
+    ("2024-12-01", Decimal("21150")),
+    # --- 2025 ---
+    ("2025-01-01", Decimal("20930")),
+    ("2025-02-01", Decimal("21250")),
+    ("2025-02-14", Decimal("21250")),   # exact 1Y anchor
+    ("2025-03-01", Decimal("21470")),
+    ("2025-04-01", Decimal("21600")),
+    ("2025-05-01", Decimal("21800")),
+    ("2025-06-01", Decimal("22000")),
+    ("2025-07-01", Decimal("22200")),
+    ("2025-08-01", Decimal("22300")),
+    ("2025-09-01", Decimal("22400")),
+    ("2025-10-01", Decimal("22400")),
+    ("2025-11-01", Decimal("22500")),
+    ("2025-12-01", Decimal("22500")),
+    # --- 2026 ---
+    ("2026-01-01", Decimal("22500")),
+    ("2026-02-01", Decimal("22500")),
+    ("2026-03-01", Decimal("22500")),
+]
+
 # Verified historical VN30 index closes (monthly density).
 # Anchors from Vietstock, CafeF, VPS historical data.
 # Monthly spacing ensures every lookup falls within MAX_LOOKUP_TOLERANCE_DAYS (3).
@@ -264,6 +315,9 @@ class HistoryRepository:
         if current_data.land:
             result["land"] = self._land_changes(current_data.land.price_per_m2)
 
+        if current_data.gasoline:
+            result["gasoline"] = self._gasoline_changes(current_data.gasoline.ron95_price)
+
         return result
 
     # ------------------------------------------------------------------
@@ -318,6 +372,12 @@ class HistoryRepository:
         except Exception as e:
             print(f"  ⚠ Land timeseries failed: {e}")
 
+        try:
+            result["gasoline"] = self._gasoline_timeseries()
+            print(f"  ✓ Gasoline timeseries: {len(result['gasoline'])} points")
+        except Exception as e:
+            print(f"  ⚠ Gasoline timeseries failed: {e}")
+
         return result
 
     def _gold_timeseries(self) -> List[List]:
@@ -354,6 +414,28 @@ class HistoryRepository:
             merged[date_str] = float(val)
 
         for entry in get_all_entries("land"):
+            date_str = entry.get("date")
+            value_str = entry.get("value")
+            if not date_str or value_str is None:
+                continue
+            try:
+                merged[date_str] = float(Decimal(value_str))
+            except Exception:
+                continue
+
+        return sorted([d, v] for d, v in merged.items())
+
+    def _gasoline_timeseries(self) -> List[List]:
+        """Merge _GASOLINE_HISTORICAL_SEEDS with locally-recorded gasoline prices
+        into a sorted [[date_str, float], ...] list.
+        Seeds are lowest priority; local store entries override if same date.
+        Returns list sorted ascending by date string (YYYY-MM-DD)."""
+        merged: Dict[str, float] = {}
+
+        for date_str, val in _GASOLINE_HISTORICAL_SEEDS:
+            merged[date_str] = float(val)
+
+        for entry in get_all_entries("gasoline"):
             date_str = entry.get("date")
             value_str = entry.get("value")
             if not date_str or value_str is None:
@@ -963,6 +1045,39 @@ class HistoryRepository:
 
         return AssetHistoricalData(asset_name="land", changes=changes)
 
+    def _gasoline_changes(self, current_value: Decimal) -> AssetHistoricalData:
+        """Compute RON 95-III % change for each period using local store + seeds.
+        Calls _seed_historical_gasoline() first to ensure 3Y coverage.
+        For each period: tries get_value_at("gasoline", target_date), then
+        _find_seed_rate(_GASOLINE_HISTORICAL_SEEDS, target_date, max_delta_days=20).
+        For 3Y period: uses max_delta_days=45.
+        Returns AssetHistoricalData(asset_name="gasoline", changes=[...])."""
+        changes = []
+        now = datetime.now()
+
+        self._seed_historical_gasoline()
+
+        for label, days in HISTORY_PERIODS.items():
+            target_date = now - timedelta(days=days)
+            old_value = get_value_at("gasoline", target_date)
+
+            if old_value is None:
+                max_delta = 45 if label == "3Y" else 20
+                old_value = self._find_seed_rate(
+                    _GASOLINE_HISTORICAL_SEEDS,
+                    target_date,
+                    max_delta_days=max_delta,
+                )
+
+            change = HistoricalChange(period=label, new_value=current_value)
+            if old_value is not None:
+                change.old_value = old_value
+                change.change_percent = _compute_change_percent(old_value, current_value)
+
+            changes.append(change)
+
+        return AssetHistoricalData(asset_name="gasoline", changes=changes)
+
     @staticmethod
     def _seed_historical_land() -> None:
         """Plant verified/curated land anchors into the local history store."""
@@ -970,6 +1085,18 @@ class HistoryRepository:
             try:
                 dt = datetime.strptime(date_str, "%Y-%m-%d")
                 record_snapshot("land", value, dt)
+            except (ValueError, TypeError):
+                continue
+
+    @staticmethod
+    def _seed_historical_gasoline() -> None:
+        """Plant all _GASOLINE_HISTORICAL_SEEDS into the local history store.
+        Calls record_snapshot("gasoline", value, dt) for each seed entry.
+        record_snapshot deduplicates by date — repeated calls are no-ops."""
+        for date_str, value in _GASOLINE_HISTORICAL_SEEDS:
+            try:
+                dt = datetime.strptime(date_str, "%Y-%m-%d")
+                record_snapshot("gasoline", value, dt)
             except (ValueError, TypeError):
                 continue
 

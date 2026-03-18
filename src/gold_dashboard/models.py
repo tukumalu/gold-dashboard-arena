@@ -75,6 +75,20 @@ class LandPrice:
 
 
 @dataclass
+class GasolinePrice:
+    """Model for Vietnam retail gasoline prices (government-regulated)."""
+    ron95_price: Decimal          # RON 95-III price, VND/liter
+    source: str
+    e5_ron92_price: Optional[Decimal] = None  # E5 RON 92 price, VND/liter (may be unavailable)
+    unit: str = "VND/liter"
+    timestamp: datetime = field(default_factory=datetime.now)
+
+    def __post_init__(self):
+        if self.ron95_price <= 0:
+            raise ValueError("Gasoline price must be positive")
+
+
+@dataclass
 class DashboardData:
     """Aggregated model for all dashboard data."""
     gold: Optional[GoldPrice] = None
@@ -82,6 +96,7 @@ class DashboardData:
     bitcoin: Optional[BitcoinPrice] = None
     vn30: Optional[Vn30Index] = None
     land: Optional[LandPrice] = None
+    gasoline: Optional[GasolinePrice] = None
 
 
 @dataclass

@@ -177,6 +177,41 @@ function resetLandCard() {
     card.className = 'metric-card old';
 }
 
+function updateGasolineCard(data, history) {
+    if (!data) return;
+    const card = document.getElementById('gasolineCard');
+    document.getElementById('gasolineRon95').textContent = formatVietnameseNumber(data.ron95_price, 0);
+    document.getElementById('gasolineRon95Small').textContent = formatVietnameseNumber(data.ron95_price, 0);
+    
+    if (data.e5_ron92_price !== null && data.e5_ron92_price !== undefined) {
+        document.getElementById('gasolineE5').textContent = formatVietnameseNumber(data.e5_ron92_price, 0);
+    } else {
+        document.getElementById('gasolineE5').textContent = '--';
+    }
+    
+    document.getElementById('gasolineUnit').textContent = data.unit || 'VND/liter';
+    document.getElementById('gasolineSource').textContent = data.source || '--';
+
+    const badge = document.getElementById('gasolineBadge');
+    const dayChange = history && history.find(c => c.period === '1D');
+    formatChangeBadge(badge, dayChange ? dayChange.change_percent : null);
+
+    card.className = 'metric-card ' + getFreshnessClass(data.timestamp);
+}
+
+function resetGasolineCard() {
+    const card = document.getElementById('gasolineCard');
+    if (!card) return;
+
+    document.getElementById('gasolineRon95').textContent = '--';
+    document.getElementById('gasolineRon95Small').textContent = '--';
+    document.getElementById('gasolineE5').textContent = '--';
+    document.getElementById('gasolineUnit').textContent = 'VND/liter';
+    document.getElementById('gasolineSource').textContent = 'Unavailable';
+    formatChangeBadge(document.getElementById('gasolineBadge'), null);
+    card.className = 'metric-card old';
+}
+
 function updateVn30Card(data, history) {
     if (!data) return;
     const card = document.getElementById('vn30Card');
@@ -427,6 +462,7 @@ function updateLastUpdateTime(data) {
         data && data.bitcoin && data.bitcoin.timestamp,
         data && data.vn30 && data.vn30.timestamp,
         data && data.land && data.land.timestamp,
+        data && data.gasoline && data.gasoline.timestamp,
     ];
     for (const ts of candidates) {
         const parsed = parseTimestampToLocalTime(ts);
@@ -455,6 +491,7 @@ async function fetchData() {
         const btcHistory = data.history && data.history.bitcoin;
         const vn30History = data.history && data.history.vn30;
         const landHistory = data.history && data.history.land;
+        const gasolineHistory = data.history && data.history.gasoline;
 
         // Update metric cards
         if (data.gold) updateGoldCard(data.gold, goldHistory);
@@ -473,6 +510,9 @@ async function fetchData() {
         if (data.land) updateLandCard(data.land, landHistory);
         else resetLandCard();
 
+        if (data.gasoline) updateGasolineCard(data.gasoline, gasolineHistory);
+        else resetGasolineCard();
+
         // Update history badges on metric cards
         if (goldHistory) updateHistoryBadges('goldHistory', goldHistory);
         else updateHistoryBadges('goldHistory', []);
@@ -482,6 +522,9 @@ async function fetchData() {
 
         if (landHistory) updateHistoryBadges('landHistory', landHistory);
         else updateHistoryBadges('landHistory', []);
+
+        if (gasolineHistory) updateHistoryBadges('gasolineHistory', gasolineHistory);
+        else updateHistoryBadges('gasolineHistory', []);
 
         // Store timeseries and render charts
         if (data.timeseries) {

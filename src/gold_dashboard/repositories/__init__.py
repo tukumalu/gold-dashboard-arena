@@ -9,6 +9,7 @@ from .currency_repo import CurrencyRepository
 from .crypto_repo import CryptoRepository
 from .stock_repo import StockRepository
 from .land_repo import LandRepository
+from .gasoline_repo import GasolineRepository
 from .history_repo import HistoryRepository
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     'CryptoRepository',
     'StockRepository',
     'LandRepository',
+    'GasolineRepository',
     'HistoryRepository',
 ]

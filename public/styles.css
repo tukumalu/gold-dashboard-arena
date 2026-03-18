@@ -137,7 +137,7 @@ body::after {
 /* ---- Top Row: Compact Metric Cards ---- */
 .top-row {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1.25rem;
     margin-bottom: 1.25rem;
 }
@@ -545,11 +545,6 @@ body::after {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* Let the 3rd card (land) span full width on tablet for breathing room */
-    .top-row > .metric-card:nth-child(3) {
-        grid-column: 1 / -1;
-    }
-
     .chart-cards {
         grid-template-columns: 1fr;
     }
@@ -569,10 +564,6 @@ body::after {
 
     .top-row {
         grid-template-columns: 1fr;
-    }
-
-    .top-row > .metric-card:nth-child(3) {
-        grid-column: auto;
     }
 
     .chart-cards {

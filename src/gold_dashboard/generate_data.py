@@ -12,13 +12,13 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from decimal import Decimal
 
-from .repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository, LandRepository, HistoryRepository
+from .repositories import GoldRepository, CurrencyRepository, CryptoRepository, StockRepository, LandRepository, GasolineRepository, HistoryRepository
 from .models import DashboardData, AssetHistoricalData
 from .history_store import record_snapshot
 
 warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
-REQUIRED_ASSETS = ("gold", "usd_vnd", "bitcoin", "vn30", "land")
+REQUIRED_ASSETS = ("gold", "usd_vnd", "bitcoin", "vn30", "land", "gasoline")
 
 
 def decimal_to_float(obj):
@@ -68,6 +68,12 @@ def fetch_all_data() -> DashboardData:
         print("✓ Land price fetched")
     except Exception as e:
         print(f"⚠ Land fetch failed: {e}")
+
+    try:
+        data.gasoline = GasolineRepository().fetch()
+        print("✓ Gasoline price fetched")
+    except Exception as e:
+        print(f"⚠ Gasoline fetch failed: {e}")
     
     return data
 
@@ -116,6 +122,15 @@ def serialize_data(data: DashboardData) -> dict:
             'timestamp': (data.land.timestamp.isoformat() + 'Z') if data.land.timestamp else None,
         }
 
+    if data.gasoline:
+        result['gasoline'] = {
+            'ron95_price': float(data.gasoline.ron95_price),
+            'e5_ron92_price': float(data.gasoline.e5_ron92_price) if data.gasoline.e5_ron92_price else None,
+            'unit': data.gasoline.unit,
+            'source': data.gasoline.source,
+            'timestamp': (data.gasoline.timestamp.isoformat() + 'Z') if data.gasoline.timestamp else None,
+        }
+
     # Add metadata
     result['generated_at'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
@@ -153,6 +168,9 @@ def _assess_payload_health(payload: Dict[str, Any]) -> Tuple[Dict[str, Any], boo
             severe_degradation = True
         elif asset == 'land' and current.get('price_per_m2') is None:
             reasons.append('missing_price_per_m2')
+            severe_degradation = True
+        elif asset == 'gasoline' and current.get('ron95_price') is None:
+            reasons.append('missing_ron95_price')
             severe_degradation = True
         elif asset == 'usd_vnd' and current.get('sell_rate') is None:
             reasons.append('missing_sell_rate')
@@ -260,6 +278,8 @@ def merge_current_into_timeseries(
         upsert('vn30', data.vn30.index_value)
     if data.land:
         upsert('land', data.land.price_per_m2)
+    if data.gasoline:
+        upsert('gasoline', data.gasoline.ron95_price)
 
     return merged
 
@@ -276,6 +296,8 @@ def _record_current_snapshots(data: DashboardData) -> None:
         record_snapshot("vn30", data.vn30.index_value)
     if data.land:
         record_snapshot("land", data.land.price_per_m2)
+    if data.gasoline:
+        record_snapshot("gasoline", data.gasoline.ron95_price)
 
 
 def _serialize_history(history: dict) -> dict:
@@ -380,6 +402,8 @@ def main():
             print(f"  VN30: {json_data['vn30']['source']}")
         if 'land' in json_data:
             print(f"  Land: {json_data['land']['source']}")
+        if 'gasoline' in json_data:
+            print(f"  Gasoline: {json_data['gasoline']['source']}")
         if restored_assets:
             print(f"  Restored from LKG: {', '.join(restored_assets)}")
         print("-" * 60)

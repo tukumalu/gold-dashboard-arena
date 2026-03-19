@@ -32,8 +32,8 @@ class GasolineRepository(Repository[GasolinePrice]):
     """Fetches Vietnam retail gasoline prices with a 4-step fallback chain."""
 
     _GASOLINE_SEED: ClassVar[Dict[str, str]] = {
-        "ron95_price": "22500",
-        "e5_ron92_price": "22100",
+        "ron95_price": "25570",
+        "e5_ron92_price": "22500",
         "source": "Petrolimex (seed)",
         "unit": "VND/liter",
         "timestamp": "2026-03-01T00:00:00",
